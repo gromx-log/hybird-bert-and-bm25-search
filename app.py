@@ -162,17 +162,34 @@ def label_badge(label, color):
             f'padding:2px 8px;border-radius:12px;font-size:12px;'
             f'margin-right:4px;">{label}</span>')
 
-@st.dialog("Detail Lengkap Properti", width="large")
+@st.dialog("✨ Eksplorasi Properti", width="large")
 def show_property_modal(row):
-    st.subheader(str(row.get("title", "Properti")))
+    title = str(row.get("title", "Properti"))
     
     harga = format_harga(row.get("harga_rp", 0))
     lt = row.get("luas_tanah_m2", "-")
     lb = row.get("luas_bangunan_m2", "-")
     
-    st.markdown(f"**Harga:** <span style='color:#1D9E75;font-weight:bold;'>{harga}</span> &nbsp;|&nbsp; "
-                f"**LT:** {lt} m² &nbsp;|&nbsp; **LB:** {lb} m²", unsafe_allow_html=True)
-    st.divider()
+    # Modern Airbnb-like header box for modal
+    st.markdown(f"""
+    <div style='background:linear-gradient(145deg, #1e1e1e, #2a2a2a); border-radius:16px; padding:24px; display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; border:1px solid #333; box-shadow: 0 8px 16px rgba(0,0,0,0.3);'>
+        <div>
+            <h2 style='color:#FF5A5F; font-size:32px; margin:0; font-weight:800;'>{harga}</h2>
+            <p style='color:#aaa; font-size:12px; margin:4px 0 0 0; text-transform:uppercase; letter-spacing:1px;'>"Harga Penawaran"</p>
+        </div>
+        <div style='display:flex; gap:32px; text-align:right;'>
+            <div>
+                <h3 style='margin:0; color:#fff; font-size:24px;'>{lt}</h3>
+                <p style='margin:0; color:#aaa; font-size:12px; text-transform:uppercase; letter-spacing:1px;'>Luas Tanah (m²)</p>
+            </div>
+            <div>
+                <h3 style='margin:0; color:#fff; font-size:24px;'>{lb}</h3>
+                <p style='margin:0; color:#aaa; font-size:12px; text-transform:uppercase; letter-spacing:1px;'>Luas Bangunan (m²)</p>
+            </div>
+        </div>
+    </div>
+    <h3 style='color:#fff; margin-bottom: 16px;'>{title}</h3>
+    """, unsafe_allow_html=True)
     
     # Priority detail from dataframe column
     full_desc = str(row.get("full_description", ""))
@@ -182,7 +199,8 @@ def show_property_modal(row):
             full_desc = str(row.get("text_blob", ""))
             
     if full_desc:
-        st.write(full_desc)
+        # Pre-wrap block to keep nicely spaced description 
+        st.markdown(f"<div style='color:#ccc; font-size:15px; line-height:1.7; white-space:pre-wrap; background:#181818; padding:24px; border-radius:12px; border:1px solid #2a2a2a;'>{full_desc}</div>", unsafe_allow_html=True)
     else:
         st.info("Tidak ada deskripsi detail tambahan.")
 
@@ -199,40 +217,67 @@ def render_card(item, rank):
 
     badges = ""
     if row.get("Hybrid_Bebas_Banjir", 0) == 1:
-        badges += label_badge("✓ Bebas Banjir", "#1D9E75")
+        badges += label_badge("✓ Bebas Banjir", "#2B6858")
     if row.get("AI_Bisa_KPR", 0) == 1:
-        badges += label_badge("✓ KPR", "#185FA5")
+        badges += label_badge("✓ KPR", "#1A5276")
     if row.get("AI_Legalitas_SHM", 0) == 1:
-        badges += label_badge("✓ SHM", "#BA7517")
+        badges += label_badge("✓ SHM", "#935116")
 
     score_pct = int(score * 100)
 
+    # Injected CSS for smooth hover expansion over snippet
     st.markdown(f"""
-<div style="border:1px solid #e0e0e0;border-radius:12px;padding:16px 20px;
-            margin-bottom:12px;background:#fff;">
+<style>
+.property-card-{rank} {{
+    border: 1px solid #333;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 2px;
+    background: #1c1c1c;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}}
+.property-card-{rank}:hover {{
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6);
+    border-color: #555;
+    background: #222;
+}}
+.property-card-{rank} .snippet {{
+    font-size: 14px;
+    color: #999;
+    line-height: 1.6;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: all 0.5s ease;
+}}
+.property-card-{rank}:hover .snippet {{
+    -webkit-line-clamp: 15;
+    color: #ccc;
+}}
+</style>
+<div class="property-card-{rank}">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-    <div style="flex:1;">
-      <p style="font-size:11px;color:#888;margin:0 0 2px;">#{rank}</p>
-      <p style="font-size:17px;font-weight:600;margin:0 0 6px;color:#111;">{title}</p>
-      <div>{badges}</div>
+    <div style="flex:1; padding-right:16px;">
+      <p style="font-size:11px;color:#FF5A5F;margin:0 0 6px;letter-spacing:1px;font-weight:700;">#{rank} · RELEVANSI {score_pct}%</p>
+      <p style="font-size:20px;font-weight:700;margin:0 0 8px;color:#eee;">{title}</p>
+      <div style="margin-bottom:12px;">{badges}</div>
     </div>
-    <div style="text-align:right;min-width:130px;">
-      <p style="font-size:20px;font-weight:700;color:#1D9E75;margin:0;">{harga}</p>
-      <p style="font-size:12px;color:#888;margin:4px 0 0;">
-        Relevansi: <b>{score_pct}%</b>
-      </p>
+    <div style="text-align:right;min-width:140px;">
+      <p style="font-size:24px;font-weight:800;color:#FF5A5F;margin:0;">{harga}</p>
     </div>
   </div>
-  <hr style="border:none;border-top:1px solid #f0f0f0;margin:10px 0;">
-  <div style="display:flex;gap:24px;font-size:13px;color:#555;margin-bottom:8px;">
-    <span>📐 LT: {lt} m²</span>
-    <span>🏠 LB: {lb} m²</span>
+  <div style="display:flex;gap:16px;font-size:13px;color:#fff;margin-bottom:12px;opacity:0.8;">
+    <span style="background:#2a2a2a; border-radius:6px; padding:4px 10px;">📐 LT: {lt} m²</span>
+    <span style="background:#2a2a2a; border-radius:6px; padding:4px 10px;">🏠 LB: {lb} m²</span>
   </div>
-  <p style="font-size:13px;color:#444;line-height:1.6;margin:0 0 8px 0;">{snippet}</p>
+  <p class="snippet">{snippet}</p>
 </div>
 """, unsafe_allow_html=True)
 
-    if st.button("📄 Baca Detail Properti Lengkap", key=f"btn_detail_{item['idx']}", use_container_width=True):
+    if st.button("Lihat Detail Properti", key=f"btn_detail_{item['idx']}", type="secondary", use_container_width=True):
         show_property_modal(row)
 
 # ─────────────────────────────────────────────
