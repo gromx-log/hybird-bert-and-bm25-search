@@ -272,7 +272,6 @@ def render_card(item, rank):
     <span style="background:#2a2a2a; border-radius:6px; padding:4px 10px;">📐 LT: {lt} m²</span>
     <span style="background:#2a2a2a; border-radius:6px; padding:4px 10px;">🏠 LB: {lb} m²</span>
   </div>
-  </div>
   <p class="snippet-{rank}">{snippet}</p>
 </div>
 """, unsafe_allow_html=True)
