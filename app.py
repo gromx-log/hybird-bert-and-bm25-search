@@ -240,7 +240,7 @@ def render_card(item, rank):
     border: 1px solid #333;
     border-radius: 16px;
     padding: 24px;
-    margin-bottom: 24px;
+    margin-bottom: 0px;
     background: #1c1c1c;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }}
@@ -260,7 +260,13 @@ def render_card(item, rank):
 <div class="property-card-{rank}">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;">
     <div style="flex:1; padding-right:16px;">
-      <p style="font-size:11px;color:#FF5A5F;margin:0 0 6px;letter-spacing:1px;font-weight:700;">#{rank} · RELEVANSI {score_pct}%</p>
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+         <span style="font-size:11px;color:#fff;font-weight:800;background:#FF5A5F;padding:2px 8px;border-radius:12px;">#{rank}</span>
+         <div style="flex:1; max-width: 100px; height:6px; background:#333; border-radius:3px; overflow:hidden;">
+            <div style="width:{score_pct}%; height:100%; background:linear-gradient(90deg, #FF5A5F, #ff8a8e); border-radius:3px;"></div>
+         </div>
+         <span style="font-size:11px; color:#FF5A5F; font-weight:700; letter-spacing:1px;">{score_pct}% MATCH</span>
+      </div>
       <p style="font-size:20px;font-weight:700;margin:0 0 8px;color:#eee;">{title}</p>
       <div style="margin-bottom:12px;">{badges}</div>
     </div>
@@ -278,15 +284,18 @@ def render_card(item, rank):
 
     if st.button("✦ Lihat Detail Lengkap", key=f"btn_detail_{item['idx']}", type="secondary", use_container_width=True):
         show_property_modal(row)
+        
+    # Spacer for the next card
+    st.markdown("<div style='margin-bottom: 32px;'></div>", unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────
 # UI LAYOUT
 # ─────────────────────────────────────────────
 st.markdown("""
-<h1 style='margin-bottom:4px;'>🏠 Pencarian Properti Cerdas</h1>
-<p style='color:#666;font-size:15px;margin-top:0;'>
-  Didukung IndoBERT · BM25 · Sentence-BERT Hybrid Search
-</p>
+<div style='background:linear-gradient(135deg, rgba(255, 90, 95, 0.15) 0%, rgba(0,0,0,0) 100%); padding: 60px 20px; border-radius: 24px; text-align: center; margin-bottom: 32px; border: 1px solid #333;'>
+    <h1 style='font-size: 56px; font-weight: 800; color: #fff; margin-bottom: 16px; letter-spacing: -1px; line-height:1.2;'>Find Your Dream Home<br><span style='color: #FF5A5F;'>With AI Power.</span></h1>
+    <p style='color: #aaa; font-size: 16px; max-width: 600px; margin: 0 auto 16px auto;'>Coba jelaskan rumah impian Anda secara natural. AI kami akan mengekstrak ribuan data untuk menyeleksi rekomendasi terbaik.</p>
+</div>
 """, unsafe_allow_html=True)
 
 # Load
@@ -309,11 +318,11 @@ with st.sidebar:
 
     st.divider()
 
-    st.subheader("Bobot Hybrid")
-    bm25_weight = st.slider("BM25 (kata kunci)", 0.0, 1.0, 0.4, 0.1,
-                            help="Semakin tinggi → lebih sensitif terhadap kata kunci eksak")
-    sbert_weight = round(1.0 - bm25_weight, 1)
-    st.caption(f"SBERT (makna) otomatis: **{sbert_weight}**")
+    with st.expander("⚙️ Advanced AI Settings"):
+        bm25_weight = st.slider("BM25 (kata kunci)", 0.0, 1.0, 0.4, 0.1,
+                                help="Semakin tinggi → lebih sensitif terhadap kata kunci eksak")
+        sbert_weight = round(1.0 - bm25_weight, 1)
+        st.caption(f"SBERT (makna) otomatis: **{sbert_weight}**")
 
     st.divider()
 
@@ -374,8 +383,16 @@ if (cari or query) and data_ok and query.strip():
 
 elif data_ok:
     st.markdown("""
-<div style="text-align:center;padding:60px 20px;color:#aaa;">
-  <p style="font-size:48px;margin:0;">🏡</p>
-  <p style="font-size:16px;">Masukkan pencarian di atas untuk mulai.</p>
+<div style='text-align:center; padding: 40px 20px;'>
+    <div style='font-size: 64px; margin-bottom: 20px;'>🏡</div>
+    <h2 style='color:#fff; font-weight:700;'>Siap Mengeksplorasi?</h2>
+    <p style='color:#888; font-size:15px; max-width:400px; margin: 0 auto 32px auto;'>
+        Coba beberapa pencarian populer di bawah ini untuk menguji performa mesih pencari AI kami.
+    </p>
+    <div style='display:flex; justify-content:center; gap:12px; flex-wrap:wrap;'>
+        <span style='background:#222; padding:10px 20px; border-radius:30px; font-size:13px; color:#ddd; border:1px solid #444;'>✨ Mansion Mewah Jakarta</span>
+        <span style='background:#222; padding:10px 20px; border-radius:30px; font-size:13px; color:#ddd; border:1px solid #444;'>🚆 Townhouse Dekat MRT</span>
+        <span style='background:#222; padding:10px 20px; border-radius:30px; font-size:13px; color:#ddd; border:1px solid #444;'>🏊 Villa Bali Kolam Renang</span>
+    </div>
 </div>
 """, unsafe_allow_html=True)
