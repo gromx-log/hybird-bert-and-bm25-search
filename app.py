@@ -171,9 +171,8 @@ def render_card(item, rank):
     desc     = str(row.get("teks_gabungan", row.get("full_description", "")))
     snippet  = desc[:220] + "..." if len(desc) > 220 else desc
     lokasi   = str(row.get("location", row.get("lokasi", "-")))
-    kt       = row.get("kamar_tidur", row.get("bedroom", "-"))
-    km       = row.get("kamar_mandi", row.get("bathroom", "-"))
-    luas     = row.get("luas_bangunan", row.get("building_size", "-"))
+    lt       = row.get("luas_tanah_m2", "-")
+    lb       = row.get("luas_bangunan_m2", "-")
 
     badges = ""
     if row.get("Hybrid_Bebas_Banjir", 0) == 1:
@@ -204,9 +203,8 @@ def render_card(item, rank):
   </div>
   <hr style="border:none;border-top:1px solid #f0f0f0;margin:10px 0;">
   <div style="display:flex;gap:24px;font-size:13px;color:#555;margin-bottom:8px;">
-    <span>🛏 {kt} KT</span>
-    <span>🚿 {km} KM</span>
-    <span>📐 {luas} m²</span>
+    <span>📐 LT: {lt} m²</span>
+    <span>🏠 LB: {lb} m²</span>
   </div>
   <p style="font-size:13px;color:#444;line-height:1.6;margin:0;">{snippet}</p>
 </div>
