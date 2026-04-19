@@ -162,15 +162,38 @@ def label_badge(label, color):
             f'padding:2px 8px;border-radius:12px;font-size:12px;'
             f'margin-right:4px;">{label}</span>')
 
+@st.dialog("Detail Lengkap Properti", width="large")
+def show_property_modal(row):
+    st.subheader(str(row.get("title", "Properti")))
+    
+    harga = format_harga(row.get("harga_rp", 0))
+    lt = row.get("luas_tanah_m2", "-")
+    lb = row.get("luas_bangunan_m2", "-")
+    
+    st.markdown(f"**Harga:** <span style='color:#1D9E75;font-weight:bold;'>{harga}</span> &nbsp;|&nbsp; "
+                f"**LT:** {lt} m² &nbsp;|&nbsp; **LB:** {lb} m²", unsafe_allow_html=True)
+    st.divider()
+    
+    # Priority detail from dataframe column
+    full_desc = str(row.get("full_description", ""))
+    if full_desc.strip().upper() in ["NOT_FOUND", "NAN", ""]:
+        full_desc = str(row.get("teks_gabungan", ""))
+        if full_desc.strip().upper() in ["NOT_FOUND", "NAN", ""]:
+            full_desc = str(row.get("text_blob", ""))
+            
+    if full_desc:
+        st.write(full_desc)
+    else:
+        st.info("Tidak ada deskripsi detail tambahan.")
+
 def render_card(item, rank):
     row   = item["row"]
     score = item["score"]
 
     title    = str(row.get("title", "Properti"))
     harga    = format_harga(row.get("harga_rp", 0))
-    desc     = str(row.get("teks_gabungan", row.get("full_description", "")))
-    snippet  = desc[:220] + "..." if len(desc) > 220 else desc
-    lokasi   = str(row.get("location", row.get("lokasi", "-")))
+    desc     = str(row.get("text_blob", row.get("teks_gabungan", "")))
+    snippet  = desc[:250] + "..." if len(desc) > 250 else desc
     lt       = row.get("luas_tanah_m2", "-")
     lb       = row.get("luas_bangunan_m2", "-")
 
@@ -190,8 +213,7 @@ def render_card(item, rank):
   <div style="display:flex;justify-content:space-between;align-items:flex-start;">
     <div style="flex:1;">
       <p style="font-size:11px;color:#888;margin:0 0 2px;">#{rank}</p>
-      <p style="font-size:17px;font-weight:600;margin:0 0 4px;color:#111;">{title}</p>
-      <p style="font-size:13px;color:#555;margin:0 0 8px;">📍 {lokasi}</p>
+      <p style="font-size:17px;font-weight:600;margin:0 0 6px;color:#111;">{title}</p>
       <div>{badges}</div>
     </div>
     <div style="text-align:right;min-width:130px;">
@@ -206,9 +228,12 @@ def render_card(item, rank):
     <span>📐 LT: {lt} m²</span>
     <span>🏠 LB: {lb} m²</span>
   </div>
-  <p style="font-size:13px;color:#444;line-height:1.6;margin:0;">{snippet}</p>
+  <p style="font-size:13px;color:#444;line-height:1.6;margin:0 0 8px 0;">{snippet}</p>
 </div>
 """, unsafe_allow_html=True)
+
+    if st.button("📄 Baca Detail Properti Lengkap", key=f"btn_detail_{item['idx']}", use_container_width=True):
+        show_property_modal(row)
 
 # ─────────────────────────────────────────────
 # UI LAYOUT
