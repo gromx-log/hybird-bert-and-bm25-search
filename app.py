@@ -162,35 +162,16 @@ def label_badge(label, color):
             f'padding:2px 8px;border-radius:12px;font-size:12px;'
             f'margin-right:4px;">{label}</span>')
 
-@st.dialog("✨ Eksplorasi Properti", width="large")
-def show_property_modal(row):
-    title = str(row.get("title", "Properti"))
-    
-    harga = format_harga(row.get("harga_rp", 0))
-    lt = row.get("luas_tanah_m2", "-")
-    lb = row.get("luas_bangunan_m2", "-")
-    
-    # Modern Airbnb-like header box for modal
-    st.markdown(f"""
-    <div style='background:linear-gradient(145deg, #1e1e1e, #2a2a2a); border-radius:16px; padding:24px; display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; border:1px solid #333; box-shadow: 0 8px 16px rgba(0,0,0,0.3);'>
-        <div>
-            <h2 style='color:#FF5A5F; font-size:32px; margin:0; font-weight:800;'>{harga}</h2>
-            <p style='color:#aaa; font-size:12px; margin:4px 0 0 0; text-transform:uppercase; letter-spacing:1px;'>"Harga Penawaran"</p>
-        </div>
-        <div style='display:flex; gap:32px; text-align:right;'>
-            <div>
-                <h3 style='margin:0; color:#fff; font-size:24px;'>{lt}</h3>
-                <p style='margin:0; color:#aaa; font-size:12px; text-transform:uppercase; letter-spacing:1px;'>Luas Tanah (m²)</p>
-            </div>
-            <div>
-                <h3 style='margin:0; color:#fff; font-size:24px;'>{lb}</h3>
-                <p style='margin:0; color:#aaa; font-size:12px; text-transform:uppercase; letter-spacing:1px;'>Luas Bangunan (m²)</p>
-            </div>
-        </div>
-    </div>
-    <h3 style='color:#fff; margin-bottom: 16px;'>{title}</h3>
-    """, unsafe_allow_html=True)
-    
+# No external modal needed. Using inline HTML5 details/summary for expansion.
+def render_card(item, rank):
+    row   = item["row"]
+    score = item["score"]
+
+    title    = str(row.get("title", "Properti"))
+    harga    = format_harga(row.get("harga_rp", 0))
+    lt       = row.get("luas_tanah_m2", "-")
+    lb       = row.get("luas_bangunan_m2", "-")
+
     # Priority detail from dataframe column
     full_desc = str(row.get("full_description", ""))
     if full_desc.strip().upper() in ["NOT_FOUND", "NAN", ""]:
@@ -198,22 +179,11 @@ def show_property_modal(row):
         if full_desc.strip().upper() in ["NOT_FOUND", "NAN", ""]:
             full_desc = str(row.get("text_blob", ""))
             
-    if full_desc:
-        # Pre-wrap block to keep nicely spaced description 
-        st.markdown(f"<div style='color:#ccc; font-size:15px; line-height:1.7; white-space:pre-wrap; background:#181818; padding:24px; border-radius:12px; border:1px solid #2a2a2a;'>{full_desc}</div>", unsafe_allow_html=True)
-    else:
-        st.info("Tidak ada deskripsi detail tambahan.")
-
-def render_card(item, rank):
-    row   = item["row"]
-    score = item["score"]
-
-    title    = str(row.get("title", "Properti"))
-    harga    = format_harga(row.get("harga_rp", 0))
-    desc     = str(row.get("text_blob", row.get("teks_gabungan", "")))
-    snippet  = desc[:250] + "..." if len(desc) > 250 else desc
-    lt       = row.get("luas_tanah_m2", "-")
-    lb       = row.get("luas_bangunan_m2", "-")
+    if not full_desc:
+        full_desc = "Tidak ada deskripsi detail tambahan."
+        
+    full_desc_html = full_desc.replace("\n", "<br>")
+    snippet  = full_desc[:150] + "..." if len(full_desc) > 150 else full_desc
 
     badges = ""
     if row.get("Hybrid_Bebas_Banjir", 0) == 1:
@@ -242,20 +212,38 @@ def render_card(item, rank):
     border-color: #555;
     background: #222;
 }}
-.property-card-{rank} .snippet {{
+.card-details-{rank} summary {{
+    list-style: none; /* removes marker in modern browsers */
+    cursor: pointer;
+    color: #FF5A5F;
+    font-weight: 600;
+    margin-top: 16px;
+    margin-bottom: 4px;
+    transition: opacity 0.2s;
+    font-size: 14px;
+}}
+.card-details-{rank} summary::-webkit-details-marker {{
+    display: none; /* removes marker in Chrome */
+}}
+.card-details-{rank} summary:hover {{
+    opacity: 0.8;
+    text-decoration: underline;
+}}
+.card-details-{rank} div {{
+    color: #ccc;
+    font-size: 14.5px;
+    line-height: 1.7;
+    background: #181818;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #2a2a2a;
+    margin-top: 12px;
+}}
+.snippet-{rank} {{
     font-size: 14px;
     color: #999;
     line-height: 1.6;
     margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    transition: all 0.5s ease;
-}}
-.property-card-{rank}:hover .snippet {{
-    -webkit-line-clamp: 15;
-    color: #ccc;
 }}
 </style>
 <div class="property-card-{rank}">
@@ -273,12 +261,12 @@ def render_card(item, rank):
     <span style="background:#2a2a2a; border-radius:6px; padding:4px 10px;">📐 LT: {lt} m²</span>
     <span style="background:#2a2a2a; border-radius:6px; padding:4px 10px;">🏠 LB: {lb} m²</span>
   </div>
-  <p class="snippet">{snippet}</p>
+  <details class="card-details-{rank}">
+    <summary>✦ Click to expand full details</summary>
+    <div>{full_desc_html}</div>
+  </details>
 </div>
 """, unsafe_allow_html=True)
-
-    if st.button("Lihat Detail Properti", key=f"btn_detail_{item['idx']}", type="secondary", use_container_width=True):
-        show_property_modal(row)
 
 # ─────────────────────────────────────────────
 # UI LAYOUT
