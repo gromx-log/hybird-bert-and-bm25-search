@@ -1,80 +1,114 @@
 # 🏠 Pencarian Properti Cerdas (Real Estate Hybrid Search Engine)
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://streamlit.io/)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
+### 🔗 Link Aplikasi: [Aplikasi Streamlit Live](https://hybrid-bert-and-bm25-search-h6ijqfgxyqjzmwivtceoas.streamlit.app)
 
-Sebuah mesin pencari properti real estate hibrida yang menggabungkan kemampuan **IndoBERT** untuk klasifikasi syarat mutlak (hard filtering) serta kombinasi **BM25 (Pencarian Leksikal)** dan **Sentence-BERT (Pencarian Semantik)** untuk pemeringkatan relevansi (soft ranking).
+---
 
-Proyek ini dirancang untuk dapat dideploy langsung pada **Streamlit** dengan efisiensi tinggi, memanfaatkan data yang telah dipra-proses secara offline guna mempercepat waktu respons pencarian.
+## 👥 Identitas Pengembang (Kelompok 8)
+Program ini dikembangkan sebagai bagian dari proyek NLP oleh Kelompok 8:
+
+| Nama | NIM | 
+| :--- | :--- | 
+| **Filbert Ferdinand** | 535240135 | 
+| **Arya Rava Pradana** | 535240023 |
+| **Rafael Theng** | 535240153 | 
+
+---
+
+## 📖 Tentang Aplikasi
+**Pencarian Properti Cerdas** adalah mesin pencari real estate (properti) berbasis web yang menggunakan **Arsitektur Hybrid** modern. Aplikasi ini dirancang untuk mengatasi kelemahan mesin pencari leksikal biasa yang sering kali gagal memahami maksud kontekstual kueri, serta kelemahan model semantik murni yang sering meleset saat mencari detail kata kunci spesifik (seperti nama jalan, stasiun MRT, atau angka harga).
+
+Data properti yang digunakan dalam mesin pencarian ini dikeruk (*crawled*) secara langsung dari portal real estate terkemuka Indonesia, **rumah123.com**.
+
+### 🛠️ Cara Kerja Arsitektur Hybrid (Two-Stage Pipeline)
+Mesin pencari ini bekerja dalam dua tahapan utama (*Two-Stage Retrieval Pipeline*):
+1. **Tahap 1: Klasifikasi & Penyaringan Keras (Hard Filtering)**
+   Aplikasi secara otomatis mendeteksi kriteria mutlak dari teks kueri pengguna (natural language) maupun filter manual sidebar. Kriteria ini disaring menggunakan klasifikasi AI berbasis model **IndoBERT** (`indobert-base-p1`) yang telah difine-tuning secara offline untuk mendeteksi tiga karakteristik biner properti:
+   - **Bebas Banjir**: Deteksi wilayah aman banjir berbasis klasifikasi IndoBERT yang digabungkan dengan pencocokan pola **Regex Fallback** untuk akurasi optimal (kolom `Hybrid_Bebas_Banjir`).
+   - **Bisa KPR**: Deteksi kesiapan properti untuk program Kredit Pemilikan Rumah (KPR).
+   - **Legalitas SHM**: Deteksi kelengkapan hukum berupa Sertifikat Hak Milik (SHM).
+   
+2. **Tahap 2: Pemeringkatan Lunak (Soft Ranking & Fusion)**
+   Setelah kumpulan properti disaring berdasarkan syarat mutlak, sisa kandidat akan dirangking menggunakan kombinasi skor leksikal dan semantik:
+   - **Pencarian Leksikal (BM25)**: Mengukur kecocokan kata kunci eksak secara cepat.
+   - **Pencarian Semantik (Sentence-BERT)**: Mengukur kesamaan makna kontekstual kueri dengan deskripsi properti menggunakan model `paraphrase-multilingual-MiniLM-L12-v2`.
+   - **Global Score Normalization**: Skor dari BM25 dan SBERT dinormalisasi secara global menggunakan metode Min-Max di awal pencarian. Hal ini menjaga konsistensi nilai persentase tingkat kecocokan (*Match %*) properti meskipun filter dipersempit.
+   - **Relevance Threshold**: Menyaring properti yang tidak relevan dengan kueri (di mana skor BM25 bernilai 0 dan tingkat kemiripan kosinus SBERT berada di bawah **0.22**), menjaga kualitas hasil pencarian tetap tinggi.
 
 ---
 
 ## 🚀 Fitur Utama
 
-- **Two-Stage Hybrid Search with Global Normalization**:
-  - **Tahap 1 (Penyaringan Syarat Mutlak)**: Menyaring properti secara cerdas berdasarkan deteksi niat kueri otomatis (IndoBERT + Regex) maupun filter kontrol sidebar untuk aspek:
-    - **Bebas Banjir**: Klasifikasi hibrida (AI IndoBERT + analisis regex) untuk menjamin kawasan aman.
-    - **Bisa KPR**: Klasifikasi AI IndoBERT untuk kesiapan cicilan kepemilikan.
-    - **Legalitas SHM**: Deteksi dokumen legalitas sertifikat hak milik secara akurat.
-    - **Spesifikasi Fisik**: Kontrol presisi terhadap range harga, luas tanah (LT), dan luas bangunan (LB).
-  - **Tahap 2 (Global Score Normalization & Soft Ranking)**:
-    - **Normalisasi Global**: Skor kecocokan dinormalisasi secara global di awal pencarian melintasi seluruh dataset, menjaga kestabilan angka presentase kecocokan (Match %) ketika filter dipersempit.
-    - **Fusion Ranker**: Perangkingan akhir menggunakan kombinasi linear optimal: **70% Pencarian Leksikal (BM25)** dan **30% Pencarian Semantik (Sentence-BERT)**.
-- **Relevance Threshold Filter**: Menghilangkan properti yang tidak relevan (skor BM25 bernilai 0 dan kosinus kemiripan semantik SBERT di bawah `0.22`). Hasil pencarian dijamin tetap relevan dengan kata kunci kueri meskipun diurutkan berdasarkan harga terendah atau luas tanah.
-- **Desain Google Antigravity (Light & Rainbow Theme)**:
-  - Antarmuka responsif bertema Google Light dengan font modern `Outfit` dan palette minimalis.
-  - Kartu properti interaktif dengan efek melayang (`translateY(-4px)`) dan garis aksen pelangi dinamis (Google Rainbow Gradient) yang menyala saat disorot.
-  - Chip saran pencarian populer dengan warna garis tepi khas Google (Blue, Red, Green) untuk navigasi cepat.
-- **Side-by-Side Comparison Grid**: Panel perbandingan interaktif untuk membandingkan spesifikasi fisik (harga, luas) dan syarat AI secara langsung hingga 4 properti sekaligus.
-- **Sidebar Terorganisir**: Slider harga telah diskalakan ke satuan **Miliar Rp** untuk mencegah tampilan tumpukan digit integer panjang pada sidebar, serta penambahan ruang sela yang lega demi kenyamanan navigasi.
+- **Pencarian Bahasa Alami (Natural Language)**: Memungkinkan pencarian properti dengan kueri bahasa sehari-hari, misalnya *"Rumah 2 lantai di Jaksel dekat stasiun MRT yang bebas banjir dan bisa KPR"*.
+- **Filter AI Otomatis & Manual**: Deteksi otomatis maksud kueri yang disinkronkan dengan panel checklist di sidebar.
+- **Konfigurasi Spesifikasi Fisik**: Slider range harga (dalam satuan Miliar Rp untuk kemudahan membaca), range Luas Tanah (LT), dan range Luas Bangunan (LB).
+- **Pengaturan Bobot AI Interaktif**: Slider dinamis untuk mengatur perimbangan bobot BM25 (Leksikal) dan SBERT (Semantik) secara real-time.
+- **Floating Comparison Panel**: Floating action button interaktif untuk membandingkan spesifikasi dan fitur hingga 4 properti terpilih dalam grid tabel HTML yang rapi.
+- **Antarmuka Premium (Google Antigravity Theme)**:
+  - Font modern `Outfit` dengan layout minimalis dan bersih.
+  - Kartu properti interaktif dengan efek transisi melayang dan gradasi bingkai pelangi (*rainbow active border*) saat disorot.
+  - Rainbow highlight pada kolom pencarian saat aktif menulis atau berisi teks.
+  - Chip rekomendasi populer ("Mansion Mewah Jakarta", "Townhouse Dekat MRT", "Rumah Murah Bekasi KPR") dengan warna khas Google.
 
 ---
 
-## 📂 Arsitektur Data
+## 📊 Hasil Eksperimen & Optimasi Bobot
+Berdasarkan evaluasi sistematis menggunakan **50 kueri uji** dan penilaian relevansi manual (*Ground Truth*), berikut hasil perbandingan performa:
 
-Untuk memastikan aplikasi berjalan dengan cepat di lingkungan produksi (Streamlit Cloud), model klasifikasi IndoBERT yang berat dijalankan secara offline. Aplikasi memuat tiga file data utama dari folder `data/` yang harus saling selaras:
+### 1. Perbandingan Kinerja Metode (Benchmark Akhir)
+| Metode | Rata-rata Precision@10 | Rata-rata MRR |
+| :--- | :---: | :---: |
+| TF-IDF (Baseline) | 0.2000 | 0.5926 |
+| BM25 (Lexical Only) | 0.2147 | **0.6451** |
+| Sentence-BERT (Semantic Only) | 0.1265 | 0.3873 |
+| **Proposed (IndoBERT + Hybrid)** | **0.2294** | 0.5667 |
 
-| Nama File | Deskripsi | Status |
-|---|---|---|
-| `data/properties_enriched.csv` | Dataset properti lengkap yang telah diperkaya dengan kolom prediksi AI (`AI_Bebas_Banjir`, `AI_Bisa_KPR`, `AI_Legalitas_SHM`, dll.) | **Wajib** |
-| `data/bm25_index.pkl` | Indeks lexical serialized untuk pemrosesan BM25 instan | **Wajib** |
-| `data/sbert_embeddings.npy` | Array representasi vektor (embeddings) dari Sentence-BERT untuk dokumen | **Wajib** |
+- **Metode Proposed (IndoBERT + Hybrid)** menghasilkan **Precision@10 tertinggi (0.2294)**, menjadikannya metode paling efektif dalam menyajikan properti yang benar-benar relevan dengan kebutuhan pengguna pada halaman pertama.
 
-> [!NOTE]
-> File data mentah (`properties_raw.csv`) dan dataset pelatihan model (`labeled_training.csv`) dapat tetap disimpan di dalam folder `data/` untuk keperluan pengembangan/debug, namun tidak diakses secara langsung oleh aplikasi web Streamlit.
+### 2. Kombinasi Bobot Optimal
+Melalui kurva optimasi bobot hibrida, kombinasi optimal dicapai pada:
+- **Bobot BM25 (Leksikal)**: `0.7`
+- **Bobot SBERT (Semantik)**: `0.3`
 
-> [!WARNING]
-> **Penyelarasan Indeks & Baris**: Ketiga file wajib di atas (`properties_enriched.csv`, `bm25_index.pkl`, dan `sbert_embeddings.npy`) harus memiliki jumlah baris/elemen yang sama dan diurutkan dalam urutan indeks yang sama. Jika Anda memperbarui dataset CSV, Anda harus membuat ulang indeks BM25 dan embeddings SBERT menggunakan skrip pembuatan indeks di dalam notebook `debug/[TEST]_Projek_UAS_NLP (1).ipynb`.
+---
+
+## 📂 Struktur Data
+Aplikasi memuat data pra-proses dari direktori `data/` untuk efisiensi RAM di cloud:
+* `data/properties_enriched.csv`: Dataset properti dengan fitur prediksi AI offline.
+* `data/bm25_index.pkl`: Model indeks BM25 terserialisasi.
+* `data/sbert_embeddings.npy`: Array representasi vektor Sentence-BERT.
 
 ---
 
 ## 🛠️ Instalasi & Menjalankan Lokal
 
-Ikuti langkah berikut untuk menjalankan aplikasi di komputer lokal Anda:
+### Prasyarat
+- Python 3.10 atau versi di atasnya.
 
-1. **Clone repositori ini**:
+### Langkah-langkah
+1. **Clone Repositori**:
    ```bash
    git clone https://github.com/username/hybrid-bert-and-bm25-search.git
    cd hybrid-bert-and-bm25-search
    ```
 
-2. **Buat & aktifkan virtual environment (opsional tapi disarankan)**:
+2. **Buat & Aktifkan Virtual Environment**:
    ```bash
-   # Windows
+   # Windows (PowerShell)
    python -m venv venv
-   venv\Scripts\activate
+   .\venv\Scripts\Activate.ps1
 
    # Linux/macOS
    python3 -m venv venv
    source venv/bin/activate
    ```
 
-3. **Install dependensi**:
+3. **Instal Dependensi**:
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Jalankan aplikasi Streamlit**:
+4. **Jalankan Aplikasi**:
    ```bash
    streamlit run app.py
    ```
