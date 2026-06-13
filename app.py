@@ -528,26 +528,26 @@ def show_property_modal(row):
 
     # Modern Google-styled header box for modal
     st.markdown(f"""
-    <div style='background:#f8f9fa; border-radius:16px; padding:24px; border:1px solid #dadce0; border-top: 4px solid #4285F4; margin-bottom:20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);'>
-        <div style='display:flex; justify-content:space-between; align-items:center;'>
-            <div>
-                <p style='color:#5f6368; font-size:12px; margin:0; text-transform:uppercase; letter-spacing:1px; font-weight:600; font-family:"Outfit",sans-serif;'>Harga Penawaran</p>
-                <h2 style='color:#4285F4; font-size:32px; margin:4px 0 0 0; font-weight:800; font-family:"Outfit",sans-serif;'>{harga}</h2>
-            </div>
-            <div style='display:flex; gap:16px;'>
-                <div style='background:#ffffff; padding:10px 16px; border-radius:8px; border:1px solid #dadce0; text-align:center;'>
-                    <span style='font-size:18px; font-weight:800; color:#202124; display:block; font-family:"Outfit",sans-serif;'>{lt} m&sup2;</span>
-                    <span style='color:#5f6368; font-size:10px; text-transform:uppercase; letter-spacing:0.5px; font-family:"Outfit",sans-serif;'>Luas Tanah</span>
-                </div>
-                <div style='background:#ffffff; padding:10px 16px; border-radius:8px; border:1px solid #dadce0; text-align:center;'>
-                    <span style='font-size:18px; font-weight:800; color:#202124; display:block; font-family:"Outfit",sans-serif;'>{lb} m&sup2;</span>
-                    <span style='color:#5f6368; font-size:10px; text-transform:uppercase; letter-spacing:0.5px; font-family:"Outfit",sans-serif;'>Luas Bangunan</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <h3 style='color:#202124; font-family:"Outfit",sans-serif; font-size:22px; font-weight:700; margin-bottom:16px;'>{title}</h3>
-    """, unsafe_allow_html=True)
+<div style='background:#f8f9fa; border-radius:16px; padding:24px; border:1px solid #dadce0; border-top: 4px solid #4285F4; margin-bottom:20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);'>
+<div style='display:flex; justify-content:space-between; align-items:center;'>
+<div>
+<p style='color:#5f6368; font-size:12px; margin:0; text-transform:uppercase; letter-spacing:1px; font-weight:600; font-family:"Outfit",sans-serif;'>Harga Penawaran</p>
+<h2 style='color:#4285F4; font-size:32px; margin:4px 0 0 0; font-weight:800; font-family:"Outfit",sans-serif;'>{harga}</h2>
+</div>
+<div style='display:flex; gap:16px;'>
+<div style='background:#ffffff; padding:10px 16px; border-radius:8px; border:1px solid #dadce0; text-align:center;'>
+<span style='font-size:18px; font-weight:800; color:#202124; display:block; font-family:"Outfit",sans-serif;'>{lt} m&sup2;</span>
+<span style='color:#5f6368; font-size:10px; text-transform:uppercase; letter-spacing:0.5px; font-family:"Outfit",sans-serif;'>Luas Tanah</span>
+</div>
+<div style='background:#ffffff; padding:10px 16px; border-radius:8px; border:1px solid #dadce0; text-align:center;'>
+<span style='font-size:18px; font-weight:800; color:#202124; display:block; font-family:"Outfit",sans-serif;'>{lb} m&sup2;</span>
+<span style='color:#5f6368; font-size:10px; text-transform:uppercase; letter-spacing:0.5px; font-family:"Outfit",sans-serif;'>Luas Bangunan</span>
+</div>
+</div>
+</div>
+</div>
+<h3 style='color:#202124; font-family:"Outfit",sans-serif; font-size:22px; font-weight:700; margin-bottom:16px;'>{title}</h3>
+""", unsafe_allow_html=True)
     
     # Priority detail from dataframe column
     full_desc = str(row.get("full_description", ""))
@@ -723,28 +723,28 @@ def render_card(item, rank):
 }}
 </style>
 <div class="property-card-{rank} {compared_class}">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-    <div style="flex:1; padding-right:16px;">
-      <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
-         <span style="font-size:11px;color:#fff;font-weight:800;background:#4285F4;padding:3px 10px;border-radius:12px;box-shadow: 0 2px 6px rgba(66, 133, 244, 0.25); font-family:'Outfit',sans-serif;">RANK {rank}</span>
-         {compare_badge}
-         <div style="flex:1; max-width: 100px; height:6px; background:#e8eaed; border-radius:3px; overflow:hidden;">
-            <div style="width:{score_pct}%; height:100%; background:linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853); border-radius:3px;"></div>
-         </div>
-         <span style="font-size:11px; color:#4285F4; font-weight:700; letter-spacing:1px; font-family:'Outfit',sans-serif;">{score_pct}% MATCH</span>
-      </div>
-      <p style="font-size:20px;font-weight:700;margin:0 0 10px;color:#202124;line-height:1.4;font-family:'Outfit',sans-serif;">{title}</p>
-      <div style="margin-bottom:14px; display:flex; flex-wrap:wrap; gap:4px;">{badges}</div>
-    </div>
-    <div style="text-align:right;min-width:140px;">
-      <p style="font-size:24px;font-weight:800;color:#4285F4;margin:0;font-family:'Outfit',sans-serif;">{harga}</p>
-    </div>
-  </div>
-  <div style="display:flex;gap:12px;font-size:13px;color:#5f6368;margin-bottom:14px;">
-    <span style="background:#f8f9fa; border:1px solid #dadce0; border-radius:8px; padding:6px 12px; font-weight:600; font-family:'Outfit',sans-serif;">LT: {lt} m&sup2;</span>
-    <span style="background:#f8f9fa; border:1px solid #dadce0; border-radius:8px; padding:6px 12px; font-weight:600; font-family:'Outfit',sans-serif;">LB: {lb} m&sup2;</span>
-  </div>
-  <p class="snippet-{rank}">{snippet}</p>
+<div style="display:flex;justify-content:space-between;align-items:flex-start;">
+<div style="flex:1; padding-right:16px;">
+<div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+<span style="font-size:11px;color:#fff;font-weight:800;background:#4285F4;padding:3px 10px;border-radius:12px;box-shadow: 0 2px 6px rgba(66, 133, 244, 0.25); font-family:'Outfit',sans-serif;">RANK {rank}</span>
+{compare_badge}
+<div style="flex:1; max-width: 100px; height:6px; background:#e8eaed; border-radius:3px; overflow:hidden;">
+<div style="width:{score_pct}%; height:100%; background:linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853); border-radius:3px;"></div>
+</div>
+<span style="font-size:11px; color:#4285F4; font-weight:700; letter-spacing:1px; font-family:'Outfit',sans-serif;">{score_pct}% MATCH</span>
+</div>
+<p style="font-size:20px;font-weight:700;margin:0 0 10px;color:#202124;line-height:1.4;font-family:'Outfit',sans-serif;">{title}</p>
+<div style="margin-bottom:14px; display:flex; flex-wrap:wrap; gap:4px;">{badges}</div>
+</div>
+<div style="text-align:right;min-width:140px;">
+<p style="font-size:24px;font-weight:800;color:#4285F4;margin:0;font-family:'Outfit',sans-serif;">{harga}</p>
+</div>
+</div>
+<div style="display:flex;gap:12px;font-size:13px;color:#5f6368;margin-bottom:14px;">
+<span style="background:#f8f9fa; border:1px solid #dadce0; border-radius:8px; padding:6px 12px; font-weight:600; font-family:'Outfit',sans-serif;">LT: {lt} m&sup2;</span>
+<span style="background:#f8f9fa; border:1px solid #dadce0; border-radius:8px; padding:6px 12px; font-weight:600; font-family:'Outfit',sans-serif;">LB: {lb} m&sup2;</span>
+</div>
+<p class="snippet-{rank}">{snippet}</p>
 </div>
 """, unsafe_allow_html=True)
 
