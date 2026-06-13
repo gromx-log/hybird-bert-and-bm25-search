@@ -6,25 +6,129 @@ import re
 import torch
 from sentence_transformers import SentenceTransformer, util
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # PAGE CONFIG
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 st.set_page_config(
     page_title="Pencarian Properti Cerdas",
     page_icon=None,
     layout="wide",
 )
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
+# CUSTOM CSS FOR GOOGLE ANTIGRAVITY LIGHT & RAINBOW THEME
+# ---------------------------------------------
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+html, body, [data-testid="stAppViewContainer"], .main {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    background-color: #ffffff !important;
+    color: #202124 !important;
+}
+
+[data-testid="stSidebar"] {
+    background-color: #f8f9fa !important;
+    border-right: 1px solid #dadce0 !important;
+}
+
+[data-testid="stSidebar"] * {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    color: #202124 !important;
+}
+
+/* Tab text styling */
+button[data-baseweb="tab"] {
+    color: #5f6368 !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    border-bottom: 2px solid transparent !important;
+    background: transparent !important;
+}
+button[data-baseweb="tab"][aria-selected="true"] {
+    color: #4285F4 !important;
+    border-bottom: 2px solid #4285F4 !important;
+}
+
+/* Input boxes */
+div[data-testid="stTextInput"] input {
+    border-radius: 24px !important;
+    border: 1px solid #dadce0 !important;
+    padding: 12px 20px !important;
+    font-size: 16px !important;
+    color: #202124 !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 1px 6px rgba(32,33,36,0.08) !important;
+    transition: all 0.2s !important;
+}
+div[data-testid="stTextInput"] input:focus {
+    border-color: #4285F4 !important;
+    box-shadow: 0 1px 6px rgba(32,33,36,0.16), 0 0 0 1px #4285F4 !important;
+    outline: none !important;
+}
+
+/* Primary buttons */
+button[kind="primary"] {
+    background-color: #4285F4 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 24px !important;
+    padding: 8px 24px !important;
+    font-weight: 600 !important;
+    transition: all 0.2s !important;
+    box-shadow: 0 1px 2px rgba(66,133,244,0.3) !important;
+}
+button[kind="primary"]:hover {
+    background-color: #357ae8 !important;
+    box-shadow: 0 4px 8px rgba(66,133,244,0.4) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Secondary/normal buttons */
+div.stButton > button {
+    border-radius: 18px !important;
+    background-color: #f1f3f4 !important;
+    color: #3c4043 !important;
+    border: 1px solid transparent !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    transition: all 0.2s !important;
+}
+div.stButton > button:hover {
+    background-color: #e8eaed !important;
+    color: #202124 !important;
+    border-color: #dadce0 !important;
+}
+
+/* Specific styling for sidebar components */
+div[data-testid="stMarkdownContainer"] p {
+    color: #202124 !important;
+}
+
+/* Metrics */
+[data-testid="stMetricValue"] {
+    color: #202124 !important;
+    font-weight: 800 !important;
+}
+
+/* Dividers */
+hr {
+    border-color: #dadce0 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ---------------------------------------------
 # PATHS
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 PATH_DATA       = "data/properties_enriched.csv"
 PATH_BM25       = "data/bm25_index.pkl"
 PATH_EMBEDDINGS = "data/sbert_embeddings.npy"
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # REGEX POLA BEBAS BANJIR
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 POLA_BEBAS_BANJIR = [
     r'\bbebas\s*banjir\b', r'\banti[\s\-]?banjir\b',
     r'\btidak\s*(pernah\s*)?(kena|terkena|tergenang|kebanjiran|banjir)\b',
@@ -59,9 +163,9 @@ def min_max_normalize(scores):
         return [0.5] * len(scores)
     return [(s - mn) / (mx - mn) for s in scores]
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # LOAD RESOURCES
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 @st.cache_resource(show_spinner="Memuat model dan data, harap tunggu...")
 def load_resources():
     df = pd.read_csv(PATH_DATA)
@@ -81,19 +185,29 @@ def load_resources():
 
     return df, bm25, model_sbert, doc_tensor
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # SEARCH FUNCTION
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 def hybrid_search(query, df, bm25, model_sbert, doc_tensor,
                   top_k=10, bm25_w=0.7, sbert_w=0.3,
                   filter_banjir=False, filter_kpr=False, filter_shm=False,
                   price_range=None, lt_range=None, lb_range=None, sort_by="Kecocokan AI"):
     """
-    Two-Stage Hybrid Search with Advanced Range Filters and Sorting.
-    Stage 1 — Hard filter  : Bebas Banjir (Hybrid), KPR (AI), SHM (AI) + Price, LT, LB range
-    Stage 2 — Soft ranking : BM25 + SBERT (configurable weights)
+    Two-Stage Hybrid Search with Global Score Normalization & Relevance Threshold Filtering.
     """
     query_lower = query.lower()
+
+    # 1. Calculate raw scores first (required for global normalization and relevance filtering)
+    tokenized_query = query_lower.split()
+    bm25_scores     = bm25.get_scores(tokenized_query)
+
+    query_emb    = model_sbert.encode(query, convert_to_tensor=True)
+    doc_t        = doc_tensor.to(query_emb.device)
+    cosine_scores = util.cos_sim(query_emb, doc_t)[0].cpu().numpy()
+
+    # 2. Global Score Normalization
+    norm_bm25 = min_max_normalize(bm25_scores)
+    norm_bert = min_max_normalize(cosine_scores)
 
     # Auto-detect from query text PLUS explicit sidebar checkboxes
     wajib_banjir = filter_banjir or "banjir" in query_lower
@@ -102,7 +216,7 @@ def hybrid_search(query, df, bm25, model_sbert, doc_tensor,
 
     valid_indices = df.index.tolist()
 
-    # 1. Hard Filter AI
+    # 3. Hard Filter AI
     if wajib_banjir and "Hybrid_Bebas_Banjir" in df.columns:
         valid_indices = [i for i in valid_indices if df.loc[i, "Hybrid_Bebas_Banjir"] == 1]
     if wajib_kpr and "AI_Bisa_KPR" in df.columns:
@@ -110,7 +224,7 @@ def hybrid_search(query, df, bm25, model_sbert, doc_tensor,
     if wajib_shm and "AI_Legalitas_SHM" in df.columns:
         valid_indices = [i for i in valid_indices if df.loc[i, "AI_Legalitas_SHM"] == 1]
 
-    # 2. Hard Filter Fisik (Harga, LT, LB)
+    # 4. Hard Filter Fisik (Harga, LT, LB)
     if price_range is not None:
         min_p, max_p = price_range
         valid_indices = [i for i in valid_indices if min_p <= df.loc[i, "harga_rp"] <= max_p]
@@ -121,27 +235,16 @@ def hybrid_search(query, df, bm25, model_sbert, doc_tensor,
         min_lb, max_lb = lb_range
         valid_indices = [i for i in valid_indices if min_lb <= df.loc[i, "luas_bangunan_m2"] <= max_lb]
 
+    # 5. Relevance Threshold Filter
+    # Exclude properties where BM25 score is 0 and SBERT cosine similarity is < 0.22
+    valid_indices = [i for i in valid_indices if not (bm25_scores[i] <= 0 and cosine_scores[i] < 0.22)]
+
     if not valid_indices:
         return [], 0
 
-    # BM25
-    tokenized_query = query_lower.split()
-    bm25_scores     = bm25.get_scores(tokenized_query)
-
-    # SBERT
-    query_emb    = model_sbert.encode(query, convert_to_tensor=True)
-    doc_t        = doc_tensor.to(query_emb.device)
-    cosine_scores = util.cos_sim(query_emb, doc_t)[0].cpu().numpy()
-
-    # Fusion
-    f_bm25 = [bm25_scores[i]  for i in valid_indices]
-    f_bert = [cosine_scores[i] for i in valid_indices]
-
-    norm_bm25 = min_max_normalize(f_bm25)
-    norm_bert = min_max_normalize(f_bert)
-
-    hybrid_scores = [(bm25_w * bm) + (sbert_w * bt)
-                     for bm, bt in zip(norm_bm25, norm_bert)]
+    # 6. Fusion using globally normalized scores
+    hybrid_scores = [(bm25_w * norm_bm25[i]) + (sbert_w * norm_bert[i])
+                     for i in valid_indices]
 
     # Build results list
     all_results = []
@@ -164,9 +267,9 @@ def hybrid_search(query, df, bm25, model_sbert, doc_tensor,
 
     return all_results[:top_k], len(valid_indices)
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # HELPERS
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 def format_harga(val):
     try:
         v = float(val)
@@ -193,27 +296,27 @@ def show_property_modal(row):
     lb = row.get("luas_bangunan_m2", "-")
     url = str(row.get("url", ""))
 
-    # Modern Airbnb-like header box for modal
+    # Modern Google-styled header box for modal
     st.markdown(f"""
-    <div style='background:linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(15, 15, 15, 0.95) 100%); border-radius:20px; padding:28px; border:1px solid rgba(16, 185, 129, 0.25); margin-bottom:24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);'>
+    <div style='background:#f8f9fa; border-radius:16px; padding:24px; border:1px solid #dadce0; border-top: 4px solid #4285F4; margin-bottom:20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);'>
         <div style='display:flex; justify-content:space-between; align-items:center;'>
             <div>
-                <p style='color:#aaa; font-size:12px; margin:0; text-transform:uppercase; letter-spacing:1.5px;'>Harga Penawaran</p>
-                <h2 style='color:#10B981; font-size:36px; margin:4px 0 0 0; font-weight:800; text-shadow: 0 2px 10px rgba(16, 185, 129, 0.2);'>{harga}</h2>
+                <p style='color:#5f6368; font-size:12px; margin:0; text-transform:uppercase; letter-spacing:1px; font-weight:600; font-family:"Outfit",sans-serif;'>Harga Penawaran</p>
+                <h2 style='color:#4285F4; font-size:32px; margin:4px 0 0 0; font-weight:800; font-family:"Outfit",sans-serif;'>{harga}</h2>
             </div>
-            <div style='display:flex; gap:24px;'>
-                <div style='background:rgba(255,255,255,0.05); padding:12px 20px; border-radius:12px; border:1px solid rgba(255,255,255,0.05); text-align:center;'>
-                    <span style='font-size:20px; font-weight:800; color:#fff; display:block;'>{lt} m²</span>
-                    <span style='color:#888; font-size:11px; text-transform:uppercase; letter-spacing:1px;'>Luas Tanah</span>
+            <div style='display:flex; gap:16px;'>
+                <div style='background:#ffffff; padding:10px 16px; border-radius:8px; border:1px solid #dadce0; text-align:center;'>
+                    <span style='font-size:18px; font-weight:800; color:#202124; display:block; font-family:"Outfit",sans-serif;'>{lt} m&sup2;</span>
+                    <span style='color:#5f6368; font-size:10px; text-transform:uppercase; letter-spacing:0.5px; font-family:"Outfit",sans-serif;'>Luas Tanah</span>
                 </div>
-                <div style='background:rgba(255,255,255,0.05); padding:12px 20px; border-radius:12px; border:1px solid rgba(255,255,255,0.05); text-align:center;'>
-                    <span style='font-size:20px; font-weight:800; color:#fff; display:block;'>{lb} m²</span>
-                    <span style='color:#888; font-size:11px; text-transform:uppercase; letter-spacing:1px;'>Luas Bangunan</span>
+                <div style='background:#ffffff; padding:10px 16px; border-radius:8px; border:1px solid #dadce0; text-align:center;'>
+                    <span style='font-size:18px; font-weight:800; color:#202124; display:block; font-family:"Outfit",sans-serif;'>{lb} m&sup2;</span>
+                    <span style='color:#5f6368; font-size:10px; text-transform:uppercase; letter-spacing:0.5px; font-family:"Outfit",sans-serif;'>Luas Bangunan</span>
                 </div>
             </div>
         </div>
     </div>
-    <h3 style='color:#fff; font-size:22px; font-weight:700; margin-bottom:16px;'>{title}</h3>
+    <h3 style='color:#202124; font-family:"Outfit",sans-serif; font-size:22px; font-weight:700; margin-bottom:16px;'>{title}</h3>
     """, unsafe_allow_html=True)
     
     # Priority detail from dataframe column
@@ -224,13 +327,13 @@ def show_property_modal(row):
             full_desc = str(row.get("text_blob", ""))
             
     if full_desc:
-        st.markdown(f"<div style='color:#ccc; font-size:15px; line-height:1.7; white-space:pre-wrap; background:#181818; padding:24px; border-radius:12px; border:1px solid #2a2a2a; margin-bottom:20px;'>{full_desc}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='color:#202124; font-family:\"Outfit\",sans-serif; font-size:15px; line-height:1.7; white-space:pre-wrap; background:#ffffff; padding:24px; border-radius:12px; border:1px solid #dadce0; margin-bottom:20px;'>{full_desc}</div>", unsafe_allow_html=True)
     else:
         st.info("Tidak ada deskripsi detail tambahan.")
 
     # Display Link if present
     if url and url.strip().lower() not in ["nan", "not_found", ""]:
-        st.markdown(f'<a href="{url}" target="_blank" style="text-align:center; display:block; background:#10B981; color:#fff; padding:12px 24px; border-radius:12px; font-weight:bold; text-decoration:none; box-shadow:0 4px 15px rgba(16,185,129,0.3); transition:all 0.3s;">Buka Halaman Sumber Properti</a>', unsafe_allow_html=True)
+        st.markdown(f'<a href="{url}" target="_blank" style="text-align:center; display:block; background:#4285F4; color:#ffffff; padding:12px 24px; border-radius:8px; font-weight:bold; text-decoration:none; box-shadow:0 2px 6px rgba(66,133,244,0.25); transition:all 0.3s; font-family:\"Outfit\",sans-serif;">Buka Halaman Sumber Properti</a>', unsafe_allow_html=True)
 
 # Render property card
 def render_card(item, rank):
@@ -253,60 +356,74 @@ def render_card(item, rank):
     # Modern badging system (Emoji-free)
     badges = ""
     if row.get("Hybrid_Bebas_Banjir", 0) == 1:
-        badges += label_badge("Bebas Banjir", "rgba(16, 185, 129, 0.15)", "#34d399", "rgba(16, 185, 129, 0.3)")
+        badges += label_badge("Bebas Banjir", "rgba(52, 168, 83, 0.08)", "#137333", "rgba(52, 168, 83, 0.25)")
     if row.get("AI_Bisa_KPR", 0) == 1:
-        badges += label_badge("Bisa KPR", "rgba(59, 130, 246, 0.15)", "#60a5fa", "rgba(59, 130, 246, 0.3)")
+        badges += label_badge("Bisa KPR", "rgba(66, 133, 244, 0.08)", "#1a73e8", "rgba(66, 133, 244, 0.25)")
     if row.get("AI_Legalitas_SHM", 0) == 1:
-        badges += label_badge("Legalitas SHM", "rgba(245, 158, 11, 0.15)", "#fbbf24", "rgba(245, 158, 11, 0.3)")
+        badges += label_badge("Legalitas SHM", "rgba(251, 188, 5, 0.08)", "#b06000", "rgba(251, 188, 5, 0.25)")
 
     score_pct = int(score * 100)
 
-    # Injected CSS for smooth hover expansion over snippet
+    # Injected CSS for smooth hover expansion over snippet with google rainbow glow
     st.markdown(f"""
 <style>
 .property-card-{rank} {{
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    padding: 28px;
+    border: 1px solid #dadce0;
+    border-radius: 16px;
+    padding: 24px;
     margin-bottom: 0px;
-    background: linear-gradient(135deg, rgba(28, 28, 28, 0.6) 0%, rgba(20, 20, 20, 0.6) 100%);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}}
+.property-card-{rank}::before {{
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: transparent;
+    transition: background 0.3s;
 }}
 .property-card-{rank}:hover {{
-    transform: translateY(-6px);
-    box-shadow: 0 20px 40px rgba(16, 185, 129, 0.12), 0 1px 1px rgba(255, 255, 255, 0.1);
-    border-color: rgba(16, 185, 129, 0.4);
-    background: linear-gradient(135deg, rgba(38, 38, 38, 0.75) 0%, rgba(24, 24, 24, 0.75) 100%);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(66, 133, 244, 0.1);
+    border-color: #4285F4;
+}}
+.property-card-{rank}:hover::before {{
+    background: linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853);
 }}
 .snippet-{rank} {{
     font-size: 14.5px;
-    color: #999;
+    color: #5f6368;
     line-height: 1.6;
     margin: 0;
+    font-family: 'Outfit', sans-serif;
 }}
 </style>
 <div class="property-card-{rank}">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;">
     <div style="flex:1; padding-right:16px;">
       <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
-         <span style="font-size:11px;color:#fff;font-weight:800;background:#10B981;padding:3px 10px;border-radius:12px;box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);">RANK {rank}</span>
-         <div style="flex:1; max-width: 100px; height:6px; background:#333; border-radius:3px; overflow:hidden;">
-            <div style="width:{score_pct}%; height:100%; background:linear-gradient(90deg, #10B981, #34D399); border-radius:3px;"></div>
+         <span style="font-size:11px;color:#fff;font-weight:800;background:#4285F4;padding:3px 10px;border-radius:12px;box-shadow: 0 2px 6px rgba(66, 133, 244, 0.25); font-family:'Outfit',sans-serif;">RANK {rank}</span>
+         <div style="flex:1; max-width: 100px; height:6px; background:#e8eaed; border-radius:3px; overflow:hidden;">
+            <div style="width:{score_pct}%; height:100%; background:linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853); border-radius:3px;"></div>
          </div>
-         <span style="font-size:11px; color:#10B981; font-weight:700; letter-spacing:1px;">{score_pct}% MATCH</span>
+         <span style="font-size:11px; color:#4285F4; font-weight:700; letter-spacing:1px; font-family:'Outfit',sans-serif;">{score_pct}% MATCH</span>
       </div>
-      <p style="font-size:22px;font-weight:700;margin:0 0 10px;color:#fff;line-height:1.3;">{title}</p>
+      <p style="font-size:20px;font-weight:700;margin:0 0 10px;color:#202124;line-height:1.4;font-family:'Outfit',sans-serif;">{title}</p>
       <div style="margin-bottom:14px; display:flex; flex-wrap:wrap; gap:4px;">{badges}</div>
     </div>
     <div style="text-align:right;min-width:140px;">
-      <p style="font-size:26px;font-weight:800;color:#10B981;margin:0;text-shadow:0 2px 8px rgba(16,185,129,0.2);">{harga}</p>
+      <p style="font-size:24px;font-weight:800;color:#4285F4;margin:0;font-family:'Outfit',sans-serif;">{harga}</p>
     </div>
   </div>
-  <div style="display:flex;gap:16px;font-size:13px;color:#fff;margin-bottom:14px;opacity:0.9;">
-    <span style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:6px 12px; font-weight:600;">LT: {lt} m²</span>
-    <span style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:6px 12px; font-weight:600;">LB: {lb} m²</span>
+  <div style="display:flex;gap:12px;font-size:13px;color:#5f6368;margin-bottom:14px;">
+    <span style="background:#f8f9fa; border:1px solid #dadce0; border-radius:8px; padding:6px 12px; font-weight:600; font-family:'Outfit',sans-serif;">LT: {lt} m&sup2;</span>
+    <span style="background:#f8f9fa; border:1px solid #dadce0; border-radius:8px; padding:6px 12px; font-weight:600; font-family:'Outfit',sans-serif;">LB: {lb} m&sup2;</span>
   </div>
   <p class="snippet-{rank}">{snippet}</p>
 </div>
@@ -337,19 +454,9 @@ def render_card(item, rank):
     # Spacer
     st.markdown("<div style='margin-bottom: 28px;'></div>", unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────
-# UI LAYOUT - HERO
-# ─────────────────────────────────────────────
-st.markdown("""
-<div style='background:linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(0,0,0,0) 100%); padding: 64px 24px; border-radius: 24px; text-align: center; margin-bottom: 32px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow:0 12px 32px rgba(0,0,0,0.2);'>
-    <h1 style='font-size: 58px; font-weight: 800; color: #fff; margin-bottom: 16px; letter-spacing: -1.5px; line-height:1.2; text-shadow:0 2px 20px rgba(0,0,0,0.6);'>Find Your Dream Home<br><span style='color: #10B981; background:linear-gradient(90deg, #10B981, #34D399); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>With AI Power.</span></h1>
-    <p style='color: #aaa; font-size: 16px; max-width: 600px; margin: 0 auto 16px auto; line-height:1.6;'>Coba jelaskan kriteria rumah impian Anda secara natural. Model Hibrida Lexical-Semantic AI kami akan merekomendasikan pilihan properti terbaik untuk Anda.</p>
-</div>
-""", unsafe_allow_html=True)
-
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # LOAD RESOURCES
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 try:
     df, bm25_model, sbert_model, doc_tensor = load_resources()
     data_ok = True
@@ -358,12 +465,12 @@ except Exception as e:
     st.info("Pastikan folder `data/` berisi: `properties_enriched.csv`, `bm25_index.pkl`, `sbert_embeddings.npy`")
     data_ok = False
 
-# ── Sidebar tabbed navigation ────────────────
+# -- Sidebar tabbed navigation ----------------
 with st.sidebar:
     st.markdown("""
     <div style='text-align: center; padding-bottom: 10px; margin-top: -15px;'>
-        <h2 style='margin: 0; color: #10B981; font-size: 28px; font-weight: 900;'>SmartSearch</h2>
-        <p style='color: #888; font-size: 13px; margin: 4px 0 0 0;'>Engine Konfigurasi & Filter</p>
+        <h2 style='margin: 0; color: #4285F4; font-family: "Outfit", sans-serif; font-size: 28px; font-weight: 900;'>SmartSearch</h2>
+        <p style='color: #5f6368; font-size: 13px; margin: 4px 0 0 0;'>Engine Konfigurasi & Filter</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -389,10 +496,10 @@ with st.sidebar:
         tab_fisik, tab_ai, tab_bobot = st.tabs(["Filter Fisik", "Filter AI", "Bobot & Info"])
         
         with tab_fisik:
-            st.markdown("<h4 style='margin-bottom:10px; color:#fff;'>Spesifikasi Fisik</h4>", unsafe_allow_html=True)
+            st.markdown("<h4 style='margin-bottom:10px; color:#202124; font-family:\"Outfit\",sans-serif;'>Spesifikasi Fisik</h4>", unsafe_allow_html=True)
             
             # Harga slider
-            st.write("Range Harga:")
+            st.markdown("<p style='font-weight:600; margin-bottom: 2px; color:#202124;'>Range Harga</p>", unsafe_allow_html=True)
             p_range = st.slider(
                 "Pilih Range Harga",
                 min_value=int(min_p),
@@ -406,7 +513,7 @@ with st.sidebar:
             st.markdown("<div style='margin-bottom:15px;'></div>", unsafe_allow_html=True)
 
             # LT slider
-            st.write("Luas Tanah (LT):")
+            st.markdown("<p style='font-weight:600; margin-bottom: 2px; color:#202124;'>Luas Tanah (LT)</p>", unsafe_allow_html=True)
             lt_range = st.slider(
                 "Pilih Luas Tanah",
                 min_value=int(min_lt_val),
@@ -416,11 +523,11 @@ with st.sidebar:
                 label_visibility="collapsed",
                 key="slider_lt"
             )
-            st.caption(f"Terpilih: **{lt_range[0]} m²** - **{lt_range[1]} m²**")
+            st.caption(f"Terpilih: **{lt_range[0]} m2** - **{lt_range[1]} m2**")
             st.markdown("<div style='margin-bottom:15px;'></div>", unsafe_allow_html=True)
 
             # LB slider
-            st.write("Luas Bangunan (LB):")
+            st.markdown("<p style='font-weight:600; margin-bottom: 2px; color:#202124;'>Luas Bangunan (LB)</p>", unsafe_allow_html=True)
             lb_range = st.slider(
                 "Pilih Luas Bangunan",
                 min_value=int(min_lb_val),
@@ -430,11 +537,11 @@ with st.sidebar:
                 label_visibility="collapsed",
                 key="slider_lb"
             )
-            st.caption(f"Terpilih: **{lb_range[0]} m²** - **{lb_range[1]} m²**")
+            st.caption(f"Terpilih: **{lb_range[0]} m2** - **{lb_range[1]} m2**")
             st.divider()
             
             # Sorting
-            st.markdown("<h4 style='margin-bottom:10px; color:#fff;'>Urutan Hasil</h4>", unsafe_allow_html=True)
+            st.markdown("<h4 style='margin-bottom:10px; color:#202124; font-family:\"Outfit\",sans-serif;'>Urutan Hasil</h4>", unsafe_allow_html=True)
             sort_by = st.selectbox(
                 "Metode Pengurutan",
                 ["Kecocokan AI", "Harga Terendah", "Harga Tertinggi", "Luas Tanah Terbesar"],
@@ -445,7 +552,7 @@ with st.sidebar:
             top_k = st.slider("Jumlah Hasil", 3, 20, 10, key="slider_topk")
 
         with tab_ai:
-            st.markdown("<h4 style='margin-bottom:10px; color:#fff;'>Syarat Mutlak (Hard Filter)</h4>", unsafe_allow_html=True)
+            st.markdown("<h4 style='margin-bottom:10px; color:#202124; font-family:\"Outfit\",sans-serif;'>Syarat Mutlak (Hard Filter)</h4>", unsafe_allow_html=True)
             st.write("Saring properti berdasarkan klasifikasi biner otomatis model IndoBERT:")
             st.markdown("<div style='margin-bottom:10px;'></div>", unsafe_allow_html=True)
             cb_banjir = st.checkbox("Wajib Bebas Banjir", key="cb_banjir")
@@ -453,7 +560,7 @@ with st.sidebar:
             cb_shm    = st.checkbox("Wajib Sertifikat SHM", key="cb_shm")
             
         with tab_bobot:
-            st.markdown("<h4 style='margin-bottom:10px; color:#fff;'>Advanced AI Config</h4>", unsafe_allow_html=True)
+            st.markdown("<h4 style='margin-bottom:10px; color:#202124; font-family:\"Outfit\",sans-serif;'>Advanced AI Config</h4>", unsafe_allow_html=True)
             bm25_weight = st.slider(
                 "BM25 Weight (Lexical)", 0.0, 1.0, 0.7, 0.1,
                 help="Mengatur sensitivitas terhadap kecocokan kata kunci eksak.",
@@ -464,7 +571,7 @@ with st.sidebar:
             
             st.divider()
             
-            st.markdown("<h4 style='margin-bottom:10px; color:#fff;'>Statistik Korpus</h4>", unsafe_allow_html=True)
+            st.markdown("<h4 style='margin-bottom:10px; color:#202124; font-family:\"Outfit\",sans-serif;'>Statistik Korpus</h4>", unsafe_allow_html=True)
             st.metric("Total Properti Terindeks", f"{len(df):,}")
             if "Hybrid_Bebas_Banjir" in df.columns:
                 st.metric("Coverage Bebas Banjir", f"{df['Hybrid_Bebas_Banjir'].sum():,}")
@@ -475,9 +582,9 @@ with st.sidebar:
     else:
         st.error("Data tidak berhasil dimuat di sidebar.")
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # SEARCH BAR & QUERY CONTROLLER
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 if "query_val" not in st.session_state:
     st.session_state.query_val = ""
 
@@ -513,9 +620,9 @@ with rec_cols[2]:
 
 st.divider()
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # SEARCH RESULTS RENDERING
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 if (cari or query) and data_ok and query.strip():
     with st.spinner("Mencari properti terbaik untuk Anda..."):
         results, total_lolos = hybrid_search(
@@ -536,8 +643,8 @@ if (cari or query) and data_ok and query.strip():
         st.warning("Tidak ada properti yang memenuhi kriteria Anda. Coba kurangi filter atau perbaiki kueri.")
     else:
         st.markdown(
-            f"<p style='color:#ccc; font-size:15px; margin-bottom: 20px;'>Ditemukan <b>{total_lolos}</b> properti "
-            f"yang memenuhi filter — menampilkan <b>{len(results)}</b> terbaik berdasarkan <b>{sort_by}</b>.</p>",
+            f"<p style='color:#5f6368; font-size:15.5px; margin-bottom: 24px; font-family:\"Outfit\",sans-serif;'>Ditemukan <b>{total_lolos}</b> properti "
+            f"yang memenuhi filter - menampilkan <b>{len(results)}</b> terbaik berdasarkan <b>{sort_by}</b>.</p>",
             unsafe_allow_html=True
         )
         for rank, item in enumerate(results, 1):
@@ -545,26 +652,30 @@ if (cari or query) and data_ok and query.strip():
 
 elif data_ok:
     st.markdown("""
-<div style='text-align:center; padding: 40px 20px;'>
+<div style='text-align:center; padding: 60px 20px; background:#f8f9fa; border-radius:16px; border: 1px solid #dadce0;'>
     <div style='margin-bottom: 24px; display:flex; justify-content:center;'>
-        <svg viewBox="0 0 24 24" width="72" height="72" stroke="#10B981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <svg viewBox="0 0 24 24" width="72" height="72" stroke="#4285F4" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
     </div>
-    <h2 style='color:#fff; font-weight:800; font-size:28px;'>Siap Mengeksplorasi Properti Impian?</h2>
-    <p style='color:#888; font-size:15.5px; max-width:460px; margin: 8px auto 32px auto; line-height:1.6;'>
-        Gunakan kolom pencarian di atas dengan bahasa natural atau klik pencarian populer untuk melihat performa pencari AI.
+    <h2 style='color:#202124; font-family:"Outfit", sans-serif; font-weight:800; font-size:28px;'>Siap Mengeksplorasi Properti Impian?</h2>
+    <p style='color:#5f6368; font-size:15.5px; max-width:480px; margin: 12px auto 0 auto; line-height:1.6;'>
+        Gunakan kolom pencarian di atas dengan bahasa natural atau klik salah satu pencarian populer untuk melihat performa pencarian hibrida cerdas.
     </p>
 </div>
 """, unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # FLOATING PROPERTY COMPARISON PANEL
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 if "compare_list" in st.session_state and st.session_state.compare_list:
-    st.divider()
+    st.markdown("<div style='margin-top: 48px;'></div>", unsafe_allow_html=True)
     st.markdown(f"""
-    <div style='background:rgba(16, 185, 129, 0.1); padding:12px 20px; border-radius:12px; border:1px solid rgba(16, 185, 129, 0.3); margin-bottom: 20px;'>
-        <h3 style='margin:0; color:#fff; font-size:20px; font-weight:700; display:flex; align-items:center; gap:8px;'>
-            Panel Perbandingan Properti <span style='font-size:12px; background:#10B981; padding:2px 8px; border-radius:10px;'>{len(st.session_state.compare_list)} Terpilih</span>
+    <div style='background: #f8f9fa; padding: 20px; border-radius: 12px; border: 1px solid #dadce0; border-top: 4px solid #4285F4; margin-bottom: 24px;'>
+        <h3 style='margin:0; color:#202124; font-family:"Outfit", sans-serif; font-size:20px; font-weight:700; display:flex; align-items:center; gap:12px;'>
+            Perbandingan Properti
+            <span style='font-size:12px; color:#ffffff; background:#4285F4; padding:3px 10px; border-radius:12px; font-weight:600;'>{len(st.session_state.compare_list)} Terpilih</span>
         </h3>
     </div>
     """, unsafe_allow_html=True)
@@ -575,30 +686,33 @@ if "compare_list" in st.session_state and st.session_state.compare_list:
     cols_comp = st.columns(len(compare_df) + 1)
     
     with cols_comp[0]:
-        st.markdown("<p style='font-weight:800; color:#10B981; font-size:14px; margin-bottom:10px;'>Spesifikasi</p>", unsafe_allow_html=True)
-        st.write("**Harga**")
-        st.write("**Luas Tanah**")
-        st.write("**Luas Bangunan**")
-        st.write("**Bebas Banjir**")
-        st.write("**Bisa KPR**")
-        st.write("**Surat SHM**")
+        st.markdown("<p style='font-weight:800; color:#4285F4; font-size:14px; margin-bottom:12px; font-family:\"Outfit\",sans-serif;'>Spesifikasi</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:10px;'>Harga</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:10px;'>Luas Tanah</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:10px;'>Luas Bangunan</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:10px;'>Bebas Banjir</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:10px;'>Bisa KPR</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:10px;'>Surat SHM</p>", unsafe_allow_html=True)
         
     for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
         with cols_comp[i]:
             title_short = str(row.get("title", "Properti"))
             if len(title_short) > 28:
                 title_short = title_short[:25] + "..."
-            st.markdown(f"<p style='font-weight:700; color:#fff; font-size:14px; margin-bottom:10px;'>{title_short}</p>", unsafe_allow_html=True)
-            st.write(format_harga(row.get("harga_rp", 0)))
-            st.write(f"{row.get('luas_tanah_m2', '-')} m²")
-            st.write(f"{row.get('luas_bangunan_m2', '-')} m²")
+            st.markdown(f"<p style='font-weight:700; color:#202124; font-size:14px; margin-bottom:12px; font-family:\"Outfit\",sans-serif; min-height:40px; line-height:1.3;'>{title_short}</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='font-size:14px; color:#202124; font-weight:700; margin-bottom:10px;'>{format_harga(row.get('harga_rp', 0))}</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='font-size:14px; color:#202124; margin-bottom:10px;'>{row.get('luas_tanah_m2', '-')} m&sup2;</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='font-size:14px; color:#202124; margin-bottom:10px;'>{row.get('luas_bangunan_m2', '-')} m&sup2;</p>", unsafe_allow_html=True)
             
-            def yes_no_badge(val):
-                return "Ya" if val == 1 else "Tidak"
+            def render_check_badge(val):
+                if val == 1:
+                    return '<span style="color:#137333; font-weight:600; background:rgba(52,168,83,0.1); padding:2px 8px; border-radius:12px; font-size:12px;">Ya</span>'
+                else:
+                    return '<span style="color:#c5221f; font-weight:600; background:rgba(234,67,53,0.1); padding:2px 8px; border-radius:12px; font-size:12px;">Tidak</span>'
                 
-            st.write(yes_no_badge(row.get("Hybrid_Bebas_Banjir", 0)))
-            st.write(yes_no_badge(row.get("AI_Bisa_KPR", 0)))
-            st.write(yes_no_badge(row.get("AI_Legalitas_SHM", 0)))
+            st.markdown(f"<p style='margin-bottom:10px;'>{render_check_badge(row.get('Hybrid_Bebas_Banjir', 0))}</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='margin-bottom:10px;'>{render_check_badge(row.get('AI_Bisa_KPR', 0))}</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='margin-bottom:18px;'>{render_check_badge(row.get('AI_Legalitas_SHM', 0))}</p>", unsafe_allow_html=True)
             
             if st.button("Hapus", key=f"btn_remove_comp_{orig_idx}", type="secondary", use_container_width=True):
                 st.session_state.compare_list.remove(orig_idx)
