@@ -137,22 +137,12 @@ Aplikasi ini siap dideploy langsung ke **Streamlit Community Cloud**:
 Berikut adalah hasil pelatihan model dan analisis pembandingan metode pencarian hibrida yang diusulkan.
 
 ### 1. Kurva Pelatihan Model IndoBERT (Fine-Tuning)
-<!-- PLACEHOLDER_START: training_progress_chart -->
-*(Silakan tempatkan gambar kurva pelatihan model IndoBERT Anda di path repositori: `assets/training_progress.png`)*
-```markdown
 ![Progres Pelatihan IndoBERT](assets/training_progress.png)
-```
-<!-- PLACEHOLDER_END: training_progress_chart -->
 
 ### 2. Optimasi Bobot Hybrid (BM25 Weight vs SBERT Weight)
 Melalui evaluasi komprehensif pada **50 kueri uji** dengan relevansi manual (*ground truth*), bobot terbaik ditemukan pada kombinasi **BM25 = 0.7** dan **SBERT = 0.3** yang menghasilkan nilai **Precision@10 = 0.2294** dan **MRR = 0.5667**.
 
-<!-- PLACEHOLDER_START: hybrid_optimization_chart -->
-*(Silakan tempatkan gambar kurva optimasi bobot hibrida Anda di path repositori: `assets/hybrid_weight_optimization.png`)*
-```markdown
 ![Grafik Optimasi Bobot Hybrid](assets/hybrid_weight_optimization.png)
-```
-<!-- PLACEHOLDER_END: hybrid_optimization_chart -->
 
 ### 3. Perbandingan Performa Evaluasi Akurasi (Benchmark Akhir)
 Perbandingan kinerja model yang diusulkan (Hybrid Proposed) terhadap metode baseline lain (TF-IDF, BM25 murni, SBERT murni):
@@ -162,9 +152,4 @@ Perbandingan kinerja model yang diusulkan (Hybrid Proposed) terhadap metode base
 - **Sentence-BERT (Semantic Only)**: Baik dalam memahami makna kalimat tapi terkadang melewatkan detail kata kunci penting (nama stasiun, nomor, dll.).
 - **Proposed (IndoBERT + Hybrid)**: Memberikan presisi tertinggi dengan menyaring properti secara cerdas dan merangking sisa hasil pencarian dengan kombinasi leksikal-semantik.
 
-<!-- PLACEHOLDER_START: benchmark_comparison_chart -->
-*(Silakan tempatkan gambar diagram perbandingan kinerja evaluasi akhir Anda di path repositori: `assets/results_chart_test.png`)*
-```markdown
 ![Grafik Perbandingan Performa](assets/results_chart_test.png)
-```
-<!-- PLACEHOLDER_END: benchmark_comparison_chart -->
