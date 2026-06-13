@@ -69,7 +69,15 @@ button[data-baseweb="tab"][aria-selected="true"] {
     border-bottom: 2px solid #4285F4 !important;
 }
 
-/* Input boxes */
+/* Input boxes styling with focus ring overrides */
+div[data-testid="stTextInput"] > div[data-baseweb="input"],
+div[data-testid="stTextInput"] > div[data-baseweb="input"] > div {
+    border: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
 div[data-testid="stTextInput"] input {
     border-radius: 24px !important;
     border: 1px solid #dadce0 !important;
@@ -155,7 +163,28 @@ div:has(> div > [class^="marker-"]) {
     display: none !important;
 }
 
-/* Premium Search Input Styling */
+/* Premium Search Input Styling with Rainbow Glow Underline */
+div:has(> div > .marker-search-input) + div div[data-testid="stTextInput"] {
+    position: relative !important;
+}
+
+div:has(> div > .marker-search-input) + div div[data-testid="stTextInput"]::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 20px !important;
+    right: 20px !important;
+    height: 3px !important;
+    background: transparent !important;
+    border-radius: 2px !important;
+    transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    z-index: 10 !important;
+}
+
+div:has(> div > .marker-search-input) + div div[data-testid="stTextInput"]:focus-within::after {
+    background: linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853) !important;
+}
+
 div:has(> div > .marker-search-input) + div div[data-testid="stTextInput"] input {
     border-radius: 28px !important;
     border: 1px solid #dadce0 !important;
@@ -167,13 +196,15 @@ div:has(> div > .marker-search-input) + div div[data-testid="stTextInput"] input
     box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
+
 div:has(> div > .marker-search-input) + div div[data-testid="stTextInput"] input:hover {
     border-color: #c0c0c0 !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
 }
+
 div:has(> div > .marker-search-input) + div div[data-testid="stTextInput"] input:focus {
     border-color: #4285F4 !important;
-    box-shadow: 0 4px 12px rgba(66,133,244,0.15) !important;
+    box-shadow: 0 4px 16px rgba(66, 133, 244, 0.25) !important;
     outline: none !important;
 }
 
@@ -243,42 +274,77 @@ div:has(> div > .marker-chip-green) + div button:hover {
     box-shadow: 0 4px 8px rgba(52, 168, 83, 0.1) !important;
 }
 
-/* Comparison Trigger Bar styling */
-div:has(> div > .marker-compare-bar) + div {
-    background: #ffffff !important;
-    border: 1px solid #dadce0 !important;
-    border-radius: 16px !important;
-    padding: 16px 24px !important;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.06) !important;
-    margin-bottom: 28px !important;
-    position: relative !important;
-    overflow: hidden !important;
-}
-div:has(> div > .marker-compare-bar) + div::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853);
+/* Floating comparison button container */
+div:has(> div > .marker-compare-float-btn) + div {
+    position: fixed !important;
+    bottom: 30px !important;
+    right: 30px !important;
+    z-index: 99999 !important;
+    border-radius: 28px !important;
+    box-shadow: 0 8px 24px rgba(66, 133, 244, 0.35) !important;
+    background: transparent !important;
 }
 
-div:has(> div > .marker-compare-btn) + div button {
-    border-radius: 24px !important;
-    height: 44px !important;
-    font-weight: 600 !important;
-    background-color: #4285F4 !important;
+div:has(> div > .marker-compare-float-btn) + div button {
+    border-radius: 28px !important;
+    height: 56px !important;
+    padding: 0 28px !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    background: linear-gradient(90deg, #4285F4, #34A853) !important;
     color: #ffffff !important;
     border: none !important;
-    box-shadow: 0 2px 6px rgba(66, 133, 244, 0.2) !important;
-    transition: all 0.2s !important;
-    width: 100% !important;
+    box-shadow: none !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
-div:has(> div > .marker-compare-btn) + div button:hover {
-    background-color: #357ae8 !important;
-    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.35) !important;
-    transform: translateY(-1px) !important;
+
+div:has(> div > .marker-compare-float-btn) + div button:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 12px 32px rgba(66, 133, 244, 0.45) !important;
+}
+
+/* Compared property card overrides */
+.property-card-compared {
+    background: rgba(66, 133, 244, 0.02) !important;
+    border: 1px solid #4285F4 !important;
+    box-shadow: 0 4px 16px rgba(66, 133, 244, 0.08) !important;
+}
+.property-card-compared::before {
+    background: linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853) !important;
+    height: 5px !important;
+}
+
+/* Comparison Table Modal Styling */
+.comparison-table-wrapper {
+    overflow-x: auto !important;
+    margin-bottom: 20px !important;
+}
+.comparison-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-family: 'Outfit', sans-serif !important;
+    margin-bottom: 24px !important;
+}
+.comparison-table th, .comparison-table td {
+    padding: 12px 16px !important;
+    text-align: left !important;
+    border-bottom: 1px solid #dadce0 !important;
+    font-size: 14.5px !important;
+    color: #202124 !important;
+    vertical-align: middle !important;
+}
+.comparison-table th {
+    font-weight: 700 !important;
+    background-color: #f8f9fa !important;
+    color: #202124 !important;
+    border-top: 1px solid #dadce0 !important;
+    font-size: 15px !important;
+}
+.comparison-table td:first-child {
+    font-weight: 600 !important;
+    color: #5f6368 !important;
+    background-color: #f8f9fa !important;
+    width: 160px !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -508,39 +574,75 @@ def show_comparison_dialog(df):
         
     compare_df = df.loc[st.session_state.compare_list]
     
-    # Render table columns side-by-side
-    cols_comp = st.columns(len(compare_df) + 1)
+    # 1. Build the HTML Table dynamically
+    html = '<div class="comparison-table-wrapper"><table class="comparison-table">'
     
-    with cols_comp[0]:
-        st.markdown("<p style='font-weight:800; color:#4285F4; font-size:14px; margin-bottom:12px; font-family:\"Outfit\",sans-serif;'>Spesifikasi</p>", unsafe_allow_html=True)
-        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:12px;'>Harga</p>", unsafe_allow_html=True)
-        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:12px;'>Luas Tanah</p>", unsafe_allow_html=True)
-        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:12px;'>Luas Bangunan</p>", unsafe_allow_html=True)
-        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:12px;'>Bebas Banjir</p>", unsafe_allow_html=True)
-        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:12px;'>Bisa KPR</p>", unsafe_allow_html=True)
-        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:12px;'>Surat SHM</p>", unsafe_allow_html=True)
-        
+    # Header row
+    html += '<thead><tr><th>Spesifikasi</th>'
+    for orig_idx, row in compare_df.iterrows():
+        title_short = str(row.get("title", "Properti"))
+        if len(title_short) > 28:
+            title_short = title_short[:25] + "..."
+        html += f'<th>{title_short}</th>'
+    html += '</tr></thead><tbody>'
+    
+    # Row: Harga
+    html += '<tr><td>Harga</td>'
+    for orig_idx, row in compare_df.iterrows():
+        html += f'<td><strong style="color: #4285F4; font-size: 15px;">{format_harga(row.get("harga_rp", 0))}</strong></td>'
+    html += '</tr>'
+    
+    # Row: Luas Tanah
+    html += '<tr><td>Luas Tanah</td>'
+    for orig_idx, row in compare_df.iterrows():
+        html += f'<td>{row.get("luas_tanah_m2", "-")} m&sup2;</td>'
+    html += '</tr>'
+    
+    # Row: Luas Bangunan
+    html += '<tr><td>Luas Bangunan</td>'
+    for orig_idx, row in compare_df.iterrows():
+        html += f'<td>{row.get("luas_bangunan_m2", "-")} m&sup2;</td>'
+    html += '</tr>'
+    
+    def get_badge_html(val):
+        if val == 1:
+            return '<span style="color:#137333; font-weight:600; background:rgba(52,168,83,0.1); padding:4px 10px; border-radius:12px; font-size:12px;">Ya</span>'
+        else:
+            return '<span style="color:#c5221f; font-weight:600; background:rgba(234,67,53,0.1); padding:4px 10px; border-radius:12px; font-size:12px;">Tidak</span>'
+            
+    # Row: Bebas Banjir
+    html += '<tr><td>Bebas Banjir</td>'
+    for orig_idx, row in compare_df.iterrows():
+        html += f'<td>{get_badge_html(row.get("Hybrid_Bebas_Banjir", 0))}</td>'
+    html += '</tr>'
+    
+    # Row: Bisa KPR
+    html += '<tr><td>Bisa KPR</td>'
+    for orig_idx, row in compare_df.iterrows():
+        html += f'<td>{get_badge_html(row.get("AI_Bisa_KPR", 0))}</td>'
+    html += '</tr>'
+    
+    # Row: Surat SHM
+    html += '<tr><td>Surat SHM</td>'
+    for orig_idx, row in compare_df.iterrows():
+        html += f'<td>{get_badge_html(row.get("AI_Legalitas_SHM", 0))}</td>'
+    html += '</tr>'
+    
+    html += '</tbody></table></div>'
+    
+    st.markdown(html, unsafe_allow_html=True)
+    
+    # 2. Render Aligned Control Buttons below the table
+    cols_btn = st.columns([1.2] + [2.0] * len(compare_df))
+    with cols_btn[0]:
+        st.write("") # Spacer
     for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
-        with cols_comp[i]:
-            title_short = str(row.get("title", "Properti"))
-            if len(title_short) > 28:
-                title_short = title_short[:25] + "..."
-            st.markdown(f"<p style='font-weight:700; color:#202124; font-size:14px; margin-bottom:12px; font-family:\"Outfit\",sans-serif; min-height:40px; line-height:1.3;'>{title_short}</p>", unsafe_allow_html=True)
-            st.markdown(f"<p style='font-size:14px; color:#202124; font-weight:700; margin-bottom:12px;'>{format_harga(row.get('harga_rp', 0))}</p>", unsafe_allow_html=True)
-            st.markdown(f"<p style='font-size:14px; color:#202124; margin-bottom:12px;'>{row.get('luas_tanah_m2', '-')} m&sup2;</p>", unsafe_allow_html=True)
-            st.markdown(f"<p style='font-size:14px; color:#202124; margin-bottom:12px;'>{row.get('luas_bangunan_m2', '-')} m&sup2;</p>", unsafe_allow_html=True)
-            
-            def render_check_badge(val):
-                if val == 1:
-                    return '<span style="color:#137333; font-weight:600; background:rgba(52,168,83,0.1); padding:2px 8px; border-radius:12px; font-size:12px;">Ya</span>'
-                else:
-                    return '<span style="color:#c5221f; font-weight:600; background:rgba(234,67,53,0.1); padding:2px 8px; border-radius:12px; font-size:12px;">Tidak</span>'
-                
-            st.markdown(f"<p style='margin-bottom:12px;'>{render_check_badge(row.get('Hybrid_Bebas_Banjir', 0))}</p>", unsafe_allow_html=True)
-            st.markdown(f"<p style='margin-bottom:12px;'>{render_check_badge(row.get('AI_Bisa_KPR', 0))}</p>", unsafe_allow_html=True)
-            st.markdown(f"<p style='margin-bottom:18px;'>{render_check_badge(row.get('AI_Legalitas_SHM', 0))}</p>", unsafe_allow_html=True)
-            
-            if st.button("Hapus", key=f"btn_remove_dialog_{orig_idx}", type="secondary", use_container_width=True):
+        with cols_btn[i]:
+            # Stacked action buttons
+            if st.button("Lihat Detail", key=f"btn_det_comp_{orig_idx}", type="secondary", use_container_width=True):
+                show_property_modal(row)
+            st.markdown("<div style='margin-top:4px;'></div>", unsafe_allow_html=True)
+            if st.button("Hapus", key=f"btn_rem_comp_{orig_idx}", type="primary", use_container_width=True):
                 st.session_state.compare_list.remove(orig_idx)
                 st.rerun()
 
@@ -548,6 +650,13 @@ def show_comparison_dialog(df):
 def render_card(item, rank):
     row   = item["row"]
     score = item["score"]
+
+    # Check comparison status
+    if "compare_list" not in st.session_state:
+        st.session_state.compare_list = []
+    is_compared = item["idx"] in st.session_state.compare_list
+    compared_class = "property-card-compared" if is_compared else ""
+    compare_badge = '<span style="font-size:11px;color:#fff;font-weight:800;background:#34A853;padding:3px 10px;border-radius:12px;box-shadow: 0 2px 6px rgba(52, 168, 83, 0.25); font-family:\'Outfit\',sans-serif;">TERPILIH UNTUK BANDING</span>' if is_compared else ""
 
     title    = str(row.get("title", "Properti"))
     harga    = format_harga(row.get("harga_rp", 0))
@@ -613,11 +722,12 @@ def render_card(item, rank):
     font-family: 'Outfit', sans-serif;
 }}
 </style>
-<div class="property-card-{rank}">
+<div class="property-card-{rank} {compared_class}">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;">
     <div style="flex:1; padding-right:16px;">
       <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
          <span style="font-size:11px;color:#fff;font-weight:800;background:#4285F4;padding:3px 10px;border-radius:12px;box-shadow: 0 2px 6px rgba(66, 133, 244, 0.25); font-family:'Outfit',sans-serif;">RANK {rank}</span>
+         {compare_badge}
          <div style="flex:1; max-width: 100px; height:6px; background:#e8eaed; border-radius:3px; overflow:hidden;">
             <div style="width:{score_pct}%; height:100%; background:linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853); border-radius:3px;"></div>
          </div>
@@ -835,27 +945,12 @@ with rec_cols[2]:
         st.session_state.query_val = "Rumah Murah Bekasi KPR"
         st.rerun()
 
-# Comparison trigger bar
+# Floating Comparison Trigger Button
 if "compare_list" in st.session_state and st.session_state.compare_list:
     count = len(st.session_state.compare_list)
-    st.markdown('<div class="marker-compare-bar"></div>', unsafe_allow_html=True)
-    col_desc, col_trigger = st.columns([4, 1])
-    with col_desc:
-        st.markdown(f"""
-        <div style="display:flex; align-items:center; gap:12px; height:100%; padding-top:8px;">
-            <span style="font-family:'Outfit',sans-serif; font-size:16px; font-weight:700; color:#202124;">
-                Bandingkan Properti ({count} / 4 Terpilih)
-            </span>
-            <span style="height:20px; width:1px; background:#dadce0;"></span>
-            <span style="font-family:'Outfit',sans-serif; font-size:13.5px; color:#5f6368;">
-                Bandingkan detail spesifikasi fisik, harga, legalitas, dan status banjir.
-            </span>
-        </div>
-        """, unsafe_allow_html=True)
-    with col_trigger:
-        st.markdown('<div class="marker-compare-btn"></div>', unsafe_allow_html=True)
-        if st.button("Buka Perbandingan", key="btn_open_compare", type="primary", use_container_width=True):
-            show_comparison_dialog(df)
+    st.markdown('<div class="marker-compare-float-btn"></div>', unsafe_allow_html=True)
+    if st.button(f"Buka Perbandingan ({count}/4)", key="btn_float_compare", type="primary"):
+        show_comparison_dialog(df)
 
 st.divider()
 
