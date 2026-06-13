@@ -646,7 +646,7 @@ def show_comparison_dialog(df):
     col_ratio = [1.2] + [2.0] * len(compare_df)
     row_actions = st.columns(col_ratio)
     with row_actions[0]:
-        st.markdown("<div style='padding-top: 10px; font-weight: 700; color: #5f6368;'>Pilihan Aksi:</div>", unsafe_allow_html=True)
+        st.markdown("<div style='display: flex; align-items: center; min-height: 82px; font-weight: 700; color: #5f6368;'>Pilihan Aksi:</div>", unsafe_allow_html=True)
     for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
         with row_actions[i]:
             if st.button("Lihat Detail", key=f"btn_det_comp_{orig_idx}", type="secondary", use_container_width=True):
@@ -838,9 +838,19 @@ with st.sidebar:
 
     # Reset button
     if st.button("Reset Semua Filter", use_container_width=True):
-        for key in list(st.session_state.keys()):
-            if key != "query_val": # Keep query search text if desired
-                del st.session_state[key]
+        # Explicitly reset all widgets to their defaults
+        if data_ok:
+            st.session_state["slider_price"] = (float(df["harga_rp"].min()) / 1_000_000_000, float(df["harga_rp"].max()) / 1_000_000_000)
+            st.session_state["slider_lt"] = (int(df["luas_tanah_m2"].min()), int(df["luas_tanah_m2"].max()))
+            st.session_state["slider_lb"] = (int(df["luas_bangunan_m2"].min()), int(df["luas_bangunan_m2"].max()))
+        st.session_state["cb_banjir"] = False
+        st.session_state["cb_kpr"] = False
+        st.session_state["cb_shm"] = False
+        st.session_state["select_sort"] = "Kecocokan AI"
+        st.session_state["slider_topk"] = 10
+        st.session_state["slider_bm25"] = 0.7
+        st.session_state["compare_list"] = []
+        st.session_state["detailed_compare_property"] = None
         st.rerun()
 
     st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
