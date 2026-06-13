@@ -294,34 +294,32 @@ div:has(> div > .marker-compare-float-btn) + div button:hover {
 
 /* Compact spacing overrides inside Streamlit Dialogs */
 div[data-testid="stDialog"] div[data-testid="stVerticalBlock"] {
-    gap: 0.35rem !important;
+    gap: 0.75rem !important;
 }
 div[data-testid="stDialog"] hr {
-    margin-top: 0.4rem !important;
-    margin-bottom: 0.4rem !important;
+    margin-top: 0.6rem !important;
+    margin-bottom: 0.6rem !important;
     border-color: #e8eaed !important;
-}
-div[data-testid="stDialog"] p {
-    margin-bottom: 0px !important;
-    font-size: 14.5px !important;
 }
 
 /* Comparison Table Modal Styling */
 .comparison-table-wrapper {
     overflow-x: auto !important;
-    margin-bottom: 20px !important;
+    margin-bottom: 24px !important;
+    border-radius: 12px !important;
+    border: 1px solid #dadce0 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02) !important;
 }
 .comparison-table {
     width: 100% !important;
     border-collapse: collapse !important;
     font-family: 'Outfit', sans-serif !important;
-    margin-bottom: 24px !important;
 }
 .comparison-table th, .comparison-table td {
-    padding: 12px 16px !important;
+    padding: 14px 20px !important;
     text-align: left !important;
     border-bottom: 1px solid #dadce0 !important;
-    font-size: 14.5px !important;
+    font-size: 15px !important;
     color: #202124 !important;
     vertical-align: middle !important;
 }
@@ -329,14 +327,19 @@ div[data-testid="stDialog"] p {
     font-weight: 700 !important;
     background-color: #f8f9fa !important;
     color: #202124 !important;
-    border-top: 1px solid #dadce0 !important;
+    border-bottom: 2px solid #dadce0 !important;
     font-size: 15px !important;
 }
 .comparison-table td:first-child {
     font-weight: 600 !important;
     color: #5f6368 !important;
     background-color: #f8f9fa !important;
-    width: 160px !important;
+}
+.comparison-table tr:last-child td {
+    border-bottom: none !important;
+}
+.comparison-table tr:hover td {
+    background-color: rgba(66, 133, 244, 0.02) !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -566,83 +569,84 @@ def show_comparison_dialog(df):
         
     compare_df = df.loc[st.session_state.compare_list]
     
-    # Proportional column ratio for perfect grid alignment
-    col_ratio = [1.2] + [2.0] * len(compare_df)
+    # Calculate perfect percentages for table and action buttons alignment
+    total_weight = 1.2 + 2.0 * len(compare_df)
+    first_col_pct = (1.2 / total_weight) * 100
+    other_col_pct = (2.0 / total_weight) * 100
     
-    # 1. Header Row
-    row_header = st.columns(col_ratio)
-    with row_header[0]:
-        st.markdown("**Spesifikasi**")
-    for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
-        with row_header[i]:
-            title_short = str(row.get("title", "Properti"))
-            if len(title_short) > 28:
-                title_short = title_short[:25] + "..."
-            st.markdown(f"**{title_short}**")
-    st.divider()
-            
-    # 2. Harga Row
-    row_harga = st.columns(col_ratio)
-    with row_harga[0]:
-        st.write("Harga")
-    for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
-        with row_harga[i]:
-            st.markdown(f"**{format_harga(row.get('harga_rp', 0))}**")
-    st.divider()
-            
-    # 3. Luas Tanah Row
-    row_lt = st.columns(col_ratio)
-    with row_lt[0]:
-        st.write("Luas Tanah")
-    for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
-        with row_lt[i]:
-            st.write(f"{row.get('luas_tanah_m2', '-')} m²")
-    st.divider()
-            
-    # 4. Luas Bangunan Row
-    row_lb = st.columns(col_ratio)
-    with row_lb[0]:
-        st.write("Luas Bangunan")
-    for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
-        with row_lb[i]:
-            st.write(f"{row.get('luas_bangunan_m2', '-')} m²")
-    st.divider()
-            
-    # Helper to style Ya/Tidak text natively
-    def get_badge_markdown(val):
-        return ":green[Ya]" if val == 1 else ":red[Tidak]"
-            
-    # 5. Bebas Banjir Row
-    row_banjir = st.columns(col_ratio)
-    with row_banjir[0]:
-        st.write("Bebas Banjir")
-    for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
-        with row_banjir[i]:
-            st.markdown(get_badge_markdown(row.get("Hybrid_Bebas_Banjir", 0)))
-    st.divider()
-            
-    # 6. Bisa KPR Row
-    row_kpr = st.columns(col_ratio)
-    with row_kpr[0]:
-        st.write("Bisa KPR")
-    for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
-        with row_kpr[i]:
-            st.markdown(get_badge_markdown(row.get("AI_Bisa_KPR", 0)))
-    st.divider()
-            
-    # 7. Surat SHM Row
-    row_shm = st.columns(col_ratio)
-    with row_shm[0]:
-        st.write("Surat SHM")
-    for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
-        with row_shm[i]:
-            st.markdown(get_badge_markdown(row.get("AI_Legalitas_SHM", 0)))
-    st.divider()
-            
-    # 8. Action Buttons Row (Stacked inside each column for perfect alignment)
+    # 1. Header HTML Row
+    html_header = f'<th style="width: {first_col_pct}%;">Spesifikasi</th>'
+    for orig_idx, row in compare_df.iterrows():
+        title_short = str(row.get("title", "Properti"))
+        if len(title_short) > 28:
+            title_short = title_short[:25] + "..."
+        html_header += f'<th style="width: {other_col_pct}%;">{title_short}</th>'
+        
+    # 2. Harga HTML Row
+    html_price = '<tr><td>Harga</td>'
+    for orig_idx, row in compare_df.iterrows():
+        html_price += f'<td style="color: #4285F4; font-weight: 700;">{format_harga(row.get("harga_rp", 0))}</td>'
+    html_price += '</tr>'
+    
+    # 3. Luas Tanah HTML Row
+    html_lt = '<tr><td>Luas Tanah</td>'
+    for orig_idx, row in compare_df.iterrows():
+        html_lt += f'<td>{row.get("luas_tanah_m2", "-")} m²</td>'
+    html_lt += '</tr>'
+    
+    # 4. Luas Bangunan HTML Row
+    html_lb = '<tr><td>Luas Bangunan</td>'
+    for orig_idx, row in compare_df.iterrows():
+        html_lb += f'<td>{row.get("luas_bangunan_m2", "-")} m²</td>'
+    html_lb += '</tr>'
+    
+    # Helper for Yes/No styled HTML
+    def get_badge_html(val):
+        return '<span style="color: #137333; font-weight: 600;">Ya</span>' if val == 1 else '<span style="color: #c5221f; font-weight: 600;">Tidak</span>'
+        
+    # 5. Bebas Banjir HTML Row
+    html_banjir = '<tr><td>Bebas Banjir</td>'
+    for orig_idx, row in compare_df.iterrows():
+        html_banjir += f'<td>{get_badge_html(row.get("Hybrid_Bebas_Banjir", 0))}</td>'
+    html_banjir += '</tr>'
+    
+    # 6. Bisa KPR HTML Row
+    html_kpr = '<tr><td>Bisa KPR</td>'
+    for orig_idx, row in compare_df.iterrows():
+        html_kpr += f'<td>{get_badge_html(row.get("AI_Bisa_KPR", 0))}</td>'
+    html_kpr += '</tr>'
+    
+    # 7. Surat SHM HTML Row
+    html_shm = '<tr><td>Surat SHM</td>'
+    for orig_idx, row in compare_df.iterrows():
+        html_shm += f'<td>{get_badge_html(row.get("AI_Legalitas_SHM", 0))}</td>'
+    html_shm += '</tr>'
+    
+    # Dynamic comparison table render
+    table_html = f"""
+    <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+            <thead>
+                <tr>{html_header}</tr>
+            </thead>
+            <tbody>
+                {html_price}
+                {html_lt}
+                {html_lb}
+                {html_banjir}
+                {html_kpr}
+                {html_shm}
+            </tbody>
+        </table>
+    </div>
+    """
+    st.markdown(table_html, unsafe_allow_html=True)
+    
+    # 8. Action Buttons Row (Stacked inside each column for perfect alignment below the table)
+    col_ratio = [1.2] + [2.0] * len(compare_df)
     row_actions = st.columns(col_ratio)
     with row_actions[0]:
-        st.markdown("**Aksi**")
+        st.markdown("<div style='padding-top: 10px; font-weight: 700; color: #5f6368;'>Pilihan Aksi:</div>", unsafe_allow_html=True)
     for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
         with row_actions[i]:
             if st.button("Lihat Detail", key=f"btn_det_comp_{orig_idx}", type="secondary", use_container_width=True):
