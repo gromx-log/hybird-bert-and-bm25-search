@@ -18,9 +18,9 @@ st.set_page_config(
 # ─────────────────────────────────────────────
 # PATHS  — sesuaikan jika folder berbeda
 # ─────────────────────────────────────────────
-PATH_DATA       = "data/properties_ultimate.csv"
+PATH_DATA       = "data/properties_enriched.csv"
 PATH_BM25       = "data/bm25_index.pkl"
-PATH_EMBEDDINGS = "data/embeddings.npy"
+PATH_EMBEDDINGS = "data/sbert_embeddings.npy"
 
 # ─────────────────────────────────────────────
 # REGEX POLA BEBAS BANJIR (dari notebook cell 30)
@@ -85,7 +85,7 @@ def load_resources():
 # SEARCH FUNCTION
 # ─────────────────────────────────────────────
 def hybrid_search(query, df, bm25, model_sbert, doc_tensor,
-                  top_k=10, bm25_w=0.4, sbert_w=0.6,
+                  top_k=10, bm25_w=0.7, sbert_w=0.3,
                   filter_banjir=False, filter_kpr=False, filter_shm=False):
     """
     Two-Stage Hybrid Search.
@@ -304,7 +304,7 @@ try:
     data_ok = True
 except Exception as e:
     st.error(f"❌ Gagal memuat data: {e}")
-    st.info("Pastikan folder `data/` berisi: `properties_ultimate.csv`, `bm25_index.pkl`, `embeddings.npy`")
+    st.info("Pastikan folder `data/` berisi: `properties_enriched.csv`, `bm25_index.pkl`, `sbert_embeddings.npy`")
     data_ok = False
 
 # ── Sidebar ──────────────────────────────────
@@ -319,7 +319,7 @@ with st.sidebar:
     st.divider()
 
     with st.expander("⚙️ Advanced AI Settings"):
-        bm25_weight = st.slider("BM25 (kata kunci)", 0.0, 1.0, 0.4, 0.1,
+        bm25_weight = st.slider("BM25 (kata kunci)", 0.0, 1.0, 0.7, 0.1,
                                 help="Semakin tinggi → lebih sensitif terhadap kata kunci eksak")
         sbert_weight = round(1.0 - bm25_weight, 1)
         st.caption(f"SBERT (makna) otomatis: **{sbert_weight}**")
