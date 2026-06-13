@@ -18,7 +18,7 @@ st.set_page_config(
 # ---------------------------------------------
 # CUSTOM CSS FOR GOOGLE ANTIGRAVITY LIGHT & RAINBOW THEME
 # ---------------------------------------------
-st.markdown("""
+st.markdown(r"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
@@ -33,9 +33,22 @@ html, body, [data-testid="stAppViewContainer"], .main {
     border-right: 1px solid #dadce0 !important;
 }
 
-[data-testid="stSidebar"] * {
+/* Apply theme font & color only to standard content elements in the sidebar */
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] div,
+[data-testid="stSidebar"] button,
+[data-testid="stSidebar"] select,
+[data-testid="stSidebar"] span:not([class*="stIcon"]) {
     font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
     color: #202124 !important;
+}
+
+/* Restore native fonts for Streamlit collapse button and material symbols */
+[data-testid="stSidebarCollapseButton"] button,
+span[class*="stIcon"],
+span[data-testid="stIconMaterial"] {
+    font-family: inherit !important;
 }
 
 /* Tab text styling */
@@ -115,6 +128,121 @@ div[data-testid="stMarkdownContainer"] p {
 /* Dividers */
 hr {
     border-color: #dadce0 !important;
+}
+
+/* Sidebar spaciousness improvement */
+div[data-testid="stSlider"] {
+    margin-bottom: 24px !important;
+    padding: 0 8px !important;
+}
+[data-testid="stSidebar"] h4 {
+    font-weight: 700 !important;
+    margin-top: 16px !important;
+    margin-bottom: 12px !important;
+    font-size: 16px !important;
+}
+[data-testid="stSidebar"] div[data-testid="stCheckbox"] {
+    margin-bottom: 12px !important;
+}
+
+/* Premium Search Bar Panel */
+.search-bar-container {
+    background: #ffffff !important;
+    border: 1px solid #dadce0 !important;
+    border-radius: 36px !important;
+    padding: 8px 16px 8px 24px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+    margin-bottom: 20px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.search-bar-container:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+    border-color: #c0c0c0 !important;
+}
+.search-bar-container:focus-within {
+    border-color: #4285F4 !important;
+    box-shadow: 0 4px 20px rgba(66, 133, 244, 0.15) !important;
+}
+
+/* Make text input inside container borderless and transparent */
+.search-bar-container div[data-testid="stTextInput"] input {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 8px 0 !important;
+    font-size: 16px !important;
+}
+.search-bar-container div[data-testid="stTextInput"] input:focus {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Styled primary search button inside the search bar */
+.search-bar-container button[kind="primary"] {
+    border-radius: 24px !important;
+    padding: 10px 28px !important;
+    height: 46px !important;
+    background-color: #4285F4 !important;
+    box-shadow: 0 2px 6px rgba(66, 133, 244, 0.3) !important;
+    margin-top: 2px !important;
+}
+.search-bar-container button[kind="primary"]:hover {
+    background-color: #357ae8 !important;
+    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.4) !important;
+}
+
+/* Google Rainbow Suggestion Chips */
+.rec-chips-container {
+    margin-top: 12px !important;
+    margin-bottom: 24px !important;
+}
+.rec-chips-container button {
+    border-radius: 20px !important;
+    background-color: #ffffff !important;
+    color: #3c4043 !important;
+    border: 1px solid #dadce0 !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    padding: 10px 18px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Mansion Mewah Jakarta (Blue Chip) */
+.rec-chips-container div[data-testid="column"]:nth-of-type(1) button {
+    border-left: 4px solid #4285F4 !important;
+}
+.rec-chips-container div[data-testid="column"]:nth-of-type(1) button:hover {
+    border-color: #4285F4 !important;
+    background-color: rgba(66, 133, 244, 0.04) !important;
+    color: #4285F4 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(66, 133, 244, 0.1) !important;
+}
+
+/* Townhouse Dekat MRT (Red Chip) */
+.rec-chips-container div[data-testid="column"]:nth-of-type(2) button {
+    border-left: 4px solid #EA4335 !important;
+}
+.rec-chips-container div[data-testid="column"]:nth-of-type(2) button:hover {
+    border-color: #EA4335 !important;
+    background-color: rgba(234, 67, 53, 0.04) !important;
+    color: #EA4335 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(234, 67, 53, 0.1) !important;
+}
+
+/* Rumah Murah Bekasi KPR (Green Chip) */
+.rec-chips-container div[data-testid="column"]:nth-of-type(3) button {
+    border-left: 4px solid #34A853 !important;
+}
+.rec-chips-container div[data-testid="column"]:nth-of-type(3) button:hover {
+    border-color: #34A853 !important;
+    background-color: rgba(52, 168, 83, 0.04) !important;
+    color: #34A853 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(52, 168, 83, 0.1) !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -498,17 +626,20 @@ with st.sidebar:
         with tab_fisik:
             st.markdown("<h4 style='margin-bottom:10px; color:#202124; font-family:\"Outfit\",sans-serif;'>Spesifikasi Fisik</h4>", unsafe_allow_html=True)
             
-            # Harga slider
-            st.markdown("<p style='font-weight:600; margin-bottom: 2px; color:#202124;'>Range Harga</p>", unsafe_allow_html=True)
-            p_range = st.slider(
+            # Harga slider (Scaled to Billions for clean display)
+            st.markdown("<p style='font-weight:600; margin-bottom: 2px; color:#202124;'>Range Harga (Miliar Rp)</p>", unsafe_allow_html=True)
+            min_p_b = float(min_p) / 1_000_000_000
+            max_p_b = float(max_p) / 1_000_000_000
+            p_range_b = st.slider(
                 "Pilih Range Harga",
-                min_value=int(min_p),
-                max_value=int(max_p),
-                value=(int(min_p), int(max_p)),
-                step=50_000_000,
+                min_value=min_p_b,
+                max_value=max_p_b,
+                value=(min_p_b, max_p_b),
+                step=0.05,
                 label_visibility="collapsed",
                 key="slider_price"
             )
+            p_range = (p_range_b[0] * 1_000_000_000, p_range_b[1] * 1_000_000_000)
             st.caption(f"Terpilih: **{format_harga(p_range[0])}** - **{format_harga(p_range[1])}**")
             st.markdown("<div style='margin-bottom:15px;'></div>", unsafe_allow_html=True)
 
@@ -588,6 +719,7 @@ with st.sidebar:
 if "query_val" not in st.session_state:
     st.session_state.query_val = ""
 
+st.markdown('<div class="search-bar-container">', unsafe_allow_html=True)
 col_input, col_btn = st.columns([5, 1])
 with col_input:
     query = st.text_input(
@@ -600,10 +732,11 @@ with col_input:
     st.session_state.query_val = query
 with col_btn:
     cari = st.button("Cari Properti", use_container_width=True, type="primary")
+st.markdown('</div>', unsafe_allow_html=True)
 
 # Search recommendations
-st.markdown("<div style='margin-bottom: 8px;'></div>", unsafe_allow_html=True)
-st.write("Pencarian Populer:")
+st.markdown("<div style='margin-top: 12px; margin-bottom: 4px; font-weight:600; color:#5f6368;'>Pencarian Populer:</div>", unsafe_allow_html=True)
+st.markdown('<div class="rec-chips-container">', unsafe_allow_html=True)
 rec_cols = st.columns([1, 1, 1])
 with rec_cols[0]:
     if st.button("Mansion Mewah Jakarta", use_container_width=True, key="rec1"):
@@ -617,6 +750,7 @@ with rec_cols[2]:
     if st.button("Rumah Murah Bekasi KPR", use_container_width=True, key="rec3"):
         st.session_state.query_val = "Rumah Murah Bekasi KPR"
         st.rerun()
+st.markdown('</div>', unsafe_allow_html=True)
 
 st.divider()
 

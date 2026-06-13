@@ -11,13 +11,22 @@ Proyek ini dirancang untuk dapat dideploy langsung pada **Streamlit** dengan efi
 
 ## 🚀 Fitur Utama
 
-- **Two-Stage Hybrid Search**:
-  - **Tahap 1 (Hard Filter)**: Menyaring hasil pencarian secara ketat berdasarkan niat/query pengguna atau filter manual pada aspek:
-    - **Bebas Banjir**: Klasifikasi hibrida (IndoBERT + Regex) untuk mendeteksi properti yang aman dari banjir.
-    - **Bisa KPR**: Klasifikasi IndoBERT untuk mendeteksi kesiapan fasilitas Kredit Pemilikan Rumah.
-    - **Legalitas SHM**: Klasifikasi IndoBERT + Regex pendeteksi Sertifikat Hak Milik.
-  - **Tahap 2 (Soft Ranking)**: Melakukan perangkingan terhadap properti yang lolos penyaringan menggunakan bobot optimal hibrida: **70% Lexical (BM25) + 30% Semantic (Sentence-BERT)**.
-- **Advanced AI Settings**: Slider interaktif pada sidebar untuk menyesuaikan pengaruh pencarian leksikal (kata kunci eksak) vs semantik (makna kalimat).
+- **Two-Stage Hybrid Search with Global Normalization**:
+  - **Tahap 1 (Penyaringan Syarat Mutlak)**: Menyaring properti secara cerdas berdasarkan deteksi niat kueri otomatis (IndoBERT + Regex) maupun filter kontrol sidebar untuk aspek:
+    - **Bebas Banjir**: Klasifikasi hibrida (AI IndoBERT + analisis regex) untuk menjamin kawasan aman.
+    - **Bisa KPR**: Klasifikasi AI IndoBERT untuk kesiapan cicilan kepemilikan.
+    - **Legalitas SHM**: Deteksi dokumen legalitas sertifikat hak milik secara akurat.
+    - **Spesifikasi Fisik**: Kontrol presisi terhadap range harga, luas tanah (LT), dan luas bangunan (LB).
+  - **Tahap 2 (Global Score Normalization & Soft Ranking)**:
+    - **Normalisasi Global**: Skor kecocokan dinormalisasi secara global di awal pencarian melintasi seluruh dataset, menjaga kestabilan angka presentase kecocokan (Match %) ketika filter dipersempit.
+    - **Fusion Ranker**: Perangkingan akhir menggunakan kombinasi linear optimal: **70% Pencarian Leksikal (BM25)** dan **30% Pencarian Semantik (Sentence-BERT)**.
+- **Relevance Threshold Filter**: Menghilangkan properti yang tidak relevan (skor BM25 bernilai 0 dan kosinus kemiripan semantik SBERT di bawah `0.22`). Hasil pencarian dijamin tetap relevan dengan kata kunci kueri meskipun diurutkan berdasarkan harga terendah atau luas tanah.
+- **Desain Google Antigravity (Light & Rainbow Theme)**:
+  - Antarmuka responsif bertema Google Light dengan font modern `Outfit` dan palette minimalis.
+  - Kartu properti interaktif dengan efek melayang (`translateY(-4px)`) dan garis aksen pelangi dinamis (Google Rainbow Gradient) yang menyala saat disorot.
+  - Chip saran pencarian populer dengan warna garis tepi khas Google (Blue, Red, Green) untuk navigasi cepat.
+- **Side-by-Side Comparison Grid**: Panel perbandingan interaktif untuk membandingkan spesifikasi fisik (harga, luas) dan syarat AI secara langsung hingga 4 properti sekaligus.
+- **Sidebar Terorganisir**: Slider harga telah diskalakan ke satuan **Miliar Rp** untuk mencegah tampilan tumpukan digit integer panjang pada sidebar, serta penambahan ruang sela yang lega demi kenyamanan navigasi.
 
 ---
 
