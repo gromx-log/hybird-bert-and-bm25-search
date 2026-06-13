@@ -70,9 +70,11 @@ button[data-baseweb="tab"][aria-selected="true"] {
 }
 
 /* Input boxes styling with focus ring overrides */
-div[data-testid="stTextInput"] > div[data-baseweb="input"],
-div[data-testid="stTextInput"] > div[data-baseweb="input"] > div {
+div[data-testid="stTextInput"] [data-baseweb="input"],
+div[data-testid="stTextInput"] [data-baseweb="input"]:focus-within,
+div[data-testid="stTextInput"] [data-baseweb="input"] > div {
     border: none !important;
+    background: transparent !important;
     background-color: transparent !important;
     box-shadow: none !important;
     outline: none !important;
@@ -163,31 +165,14 @@ div:has(> div > [class^="marker-"]) {
     display: none !important;
 }
 
-/* Premium Search Input Styling with Rainbow Glow Underline */
+/* Premium Search Input Styling with Rainbow Border */
 div:has(> div > .marker-search-input) + div div[data-testid="stTextInput"] {
     position: relative !important;
 }
 
-div:has(> div > .marker-search-input) + div div[data-testid="stTextInput"]::after {
-    content: '' !important;
-    position: absolute !important;
-    bottom: 0 !important;
-    left: 20px !important;
-    right: 20px !important;
-    height: 3px !important;
-    background: transparent !important;
-    border-radius: 2px !important;
-    transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    z-index: 10 !important;
-}
-
-div:has(> div > .marker-search-input) + div div[data-testid="stTextInput"]:focus-within::after {
-    background: linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853) !important;
-}
-
 div:has(> div > .marker-search-input) + div div[data-testid="stTextInput"] input {
     border-radius: 28px !important;
-    border: 1px solid #dadce0 !important;
+    border: 1.5px solid #dadce0 !important;
     padding: 14px 24px !important;
     height: 52px !important;
     font-size: 16px !important;
@@ -202,9 +187,12 @@ div:has(> div > .marker-search-input) + div div[data-testid="stTextInput"] input
     box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
 }
 
-div:has(> div > .marker-search-input) + div div[data-testid="stTextInput"] input:focus {
-    border-color: #4285F4 !important;
-    box-shadow: 0 4px 16px rgba(66, 133, 244, 0.25) !important;
+div:has(> div > .marker-search-input) + div div[data-testid="stTextInput"] input:focus,
+div:has(> div > .marker-search-input) + div div[data-testid="stTextInput"] input:not(:placeholder-shown) {
+    background: linear-gradient(#ffffff, #ffffff) padding-box,
+                linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853) border-box !important;
+    border: 2px solid transparent !important;
+    box-shadow: 0 4px 20px rgba(66, 133, 244, 0.15) !important;
     outline: none !important;
 }
 
@@ -229,49 +217,37 @@ div:has(> div > .marker-search-btn) + div button:hover {
 
 /* Suggestion Chips styling */
 div:has(> div > [class^="marker-chip-"]) + div button {
-    border-radius: 20px !important;
-    background-color: #ffffff !important;
+    border-radius: 24px !important;
+    background-color: #f1f3f4 !important;
     color: #3c4043 !important;
-    border: 1px solid #dadce0 !important;
+    border: 1px solid transparent !important;
     font-weight: 600 !important;
     font-size: 14px !important;
     padding: 10px 18px !important;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: none !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     width: 100% !important;
 }
 
-div:has(> div > .marker-chip-blue) + div button {
-    border-left: 4px solid #4285F4 !important;
-}
 div:has(> div > .marker-chip-blue) + div button:hover {
-    border-color: #4285F4 !important;
-    background-color: rgba(66, 133, 244, 0.04) !important;
-    color: #4285F4 !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 8px rgba(66, 133, 244, 0.1) !important;
+    border-color: rgba(66, 133, 244, 0.3) !important;
+    background-color: rgba(66, 133, 244, 0.08) !important;
+    color: #1a73e8 !important;
+    box-shadow: 0 2px 6px rgba(66, 133, 244, 0.15) !important;
 }
 
-div:has(> div > .marker-chip-red) + div button {
-    border-left: 4px solid #EA4335 !important;
-}
 div:has(> div > .marker-chip-red) + div button:hover {
-    border-color: #EA4335 !important;
-    background-color: rgba(234, 67, 53, 0.04) !important;
-    color: #EA4335 !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 8px rgba(234, 67, 53, 0.1) !important;
+    border-color: rgba(234, 67, 53, 0.3) !important;
+    background-color: rgba(234, 67, 53, 0.08) !important;
+    color: #d93025 !important;
+    box-shadow: 0 2px 6px rgba(234, 67, 53, 0.15) !important;
 }
 
-div:has(> div > .marker-chip-green) + div button {
-    border-left: 4px solid #34A853 !important;
-}
 div:has(> div > .marker-chip-green) + div button:hover {
-    border-color: #34A853 !important;
-    background-color: rgba(52, 168, 83, 0.04) !important;
-    color: #34A853 !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 8px rgba(52, 168, 83, 0.1) !important;
+    border-color: rgba(52, 168, 83, 0.3) !important;
+    background-color: rgba(52, 168, 83, 0.08) !important;
+    color: #188038 !important;
+    box-shadow: 0 2px 6px rgba(52, 168, 83, 0.15) !important;
 }
 
 /* Floating comparison button container */
@@ -281,26 +257,28 @@ div:has(> div > .marker-compare-float-btn) + div {
     right: 30px !important;
     z-index: 99999 !important;
     border-radius: 28px !important;
-    box-shadow: 0 8px 24px rgba(66, 133, 244, 0.35) !important;
+    box-shadow: 0 8px 24px rgba(66, 133, 244, 0.25) !important;
     background: transparent !important;
 }
 
 div:has(> div > .marker-compare-float-btn) + div button {
     border-radius: 28px !important;
-    height: 56px !important;
-    padding: 0 28px !important;
-    font-weight: 700 !important;
-    font-size: 15px !important;
-    background: linear-gradient(90deg, #4285F4, #34A853) !important;
-    color: #ffffff !important;
-    border: none !important;
+    height: 54px !important;
+    padding: 0 24px !important;
+    font-weight: 600 !important;
+    font-size: 14.5px !important;
+    background: #ffffff !important;
+    color: #4285F4 !important;
+    border: 1px solid #4285F4 !important;
     box-shadow: none !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: all 0.25s ease !important;
 }
 
 div:has(> div > .marker-compare-float-btn) + div button:hover {
-    transform: scale(1.05) !important;
-    box-shadow: 0 12px 32px rgba(66, 133, 244, 0.45) !important;
+    background: #4285F4 !important;
+    color: #ffffff !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(66, 133, 244, 0.35) !important;
 }
 
 /* Compared property card overrides */
@@ -312,6 +290,20 @@ div:has(> div > .marker-compare-float-btn) + div button:hover {
 .property-card-compared::before {
     background: linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853) !important;
     height: 5px !important;
+}
+
+/* Compact spacing overrides inside Streamlit Dialogs */
+div[data-testid="stDialog"] div[data-testid="stVerticalBlock"] {
+    gap: 0.35rem !important;
+}
+div[data-testid="stDialog"] hr {
+    margin-top: 0.4rem !important;
+    margin-bottom: 0.4rem !important;
+    border-color: #e8eaed !important;
+}
+div[data-testid="stDialog"] p {
+    margin-bottom: 0px !important;
+    font-size: 14.5px !important;
 }
 
 /* Comparison Table Modal Styling */
@@ -563,7 +555,7 @@ def show_property_modal(row):
 
     # Display Link if present
     if url and url.strip().lower() not in ["nan", "not_found", ""]:
-        st.markdown(f'<a href="{url}" target="_blank" style="text-align:center; display:block; background:#4285F4; color:#ffffff; padding:12px 24px; border-radius:8px; font-weight:bold; text-decoration:none; box-shadow:0 2px 6px rgba(66,133,244,0.25); transition:all 0.3s; font-family:\"Outfit\",sans-serif;">Buka Halaman Sumber Properti</a>', unsafe_allow_html=True)
+        st.markdown(f"Cek Sekarang: [{url}]({url})")
 
 # Modern modal dialog for property comparison
 @st.dialog("Perbandingan Properti", width="large")
@@ -647,28 +639,21 @@ def show_comparison_dialog(df):
             st.markdown(get_badge_markdown(row.get("AI_Legalitas_SHM", 0)))
     st.divider()
             
-    # 8. Stacked Action Buttons Row (Lihat Detail & Hapus)
-    row_actions1 = st.columns(col_ratio)
-    with row_actions1[0]:
-        st.write("") # Spacer
+    # 8. Action Buttons Row (Stacked inside each column for perfect alignment)
+    row_actions = st.columns(col_ratio)
+    with row_actions[0]:
+        st.markdown("**Aksi**")
     for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
-        with row_actions1[i]:
+        with row_actions[i]:
             if st.button("Lihat Detail", key=f"btn_det_comp_{orig_idx}", type="secondary", use_container_width=True):
                 st.session_state.detailed_compare_property = orig_idx
-                st.rerun()
                 
-    st.markdown("<div style='margin-top:6px;'></div>", unsafe_allow_html=True)
-                
-    row_actions2 = st.columns(col_ratio)
-    with row_actions2[0]:
-        st.write("") # Spacer
-    for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
-        with row_actions2[i]:
+            st.markdown("<div style='margin-top:6px;'></div>", unsafe_allow_html=True)
+            
             if st.button("Hapus", key=f"btn_rem_comp_{orig_idx}", type="primary", use_container_width=True):
                 st.session_state.compare_list.remove(orig_idx)
                 if st.session_state.get("detailed_compare_property") == orig_idx:
                     st.session_state.detailed_compare_property = None
-                st.rerun()
                 
     # 9. Property detail view container (prevents nested dialog exceptions)
     if "detailed_compare_property" in st.session_state and st.session_state.detailed_compare_property:
@@ -695,7 +680,7 @@ def show_comparison_dialog(df):
                 
             url = str(detail_row.get("url", ""))
             if url and url.strip().lower() not in ["nan", "not_found", ""]:
-                st.markdown(f'<a href="{url}" target="_blank" style="text-align:center; display:block; background:#4285F4; color:#ffffff; padding:10px 20px; border-radius:8px; font-weight:bold; text-decoration:none; font-family:\'Outfit\',sans-serif; font-size:14px; box-shadow: 0 2px 6px rgba(66,133,244,0.25);">Buka Halaman Sumber Properti</a>', unsafe_allow_html=True)
+                st.markdown(f"Cek Sekarang: [{url}]({url})")
 
 # Render property card
 def render_card(item, rank):
@@ -950,7 +935,7 @@ with st.sidebar:
 # ---------------------------------------------
 st.markdown("""
 <div style='text-align: center; margin-top: 15px; margin-bottom: 35px;'>
-    <h1 style='font-family: "Outfit", sans-serif; font-weight: 800; font-size: 38px; color: #202124; margin: 0; background: linear-gradient(90deg, #4285F4 0%, #EA4335 30%, #FBBC05 60%, #34A853 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+    <h1 style='font-family: "Outfit", sans-serif; font-weight: 800; font-size: 38px; color: #202124; margin: 0;'>
         Pencarian Properti Cerdas
     </h1>
     <p style='font-family: "Outfit", sans-serif; font-size: 15px; color: #5f6368; margin-top: 8px; margin-bottom: 0; font-weight: 500;'>
