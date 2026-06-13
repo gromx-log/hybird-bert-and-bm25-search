@@ -36,19 +36,24 @@ html, body, [data-testid="stAppViewContainer"], .main {
 /* Apply theme font & color only to standard content elements in the sidebar */
 [data-testid="stSidebar"] p,
 [data-testid="stSidebar"] label,
-[data-testid="stSidebar"] div,
-[data-testid="stSidebar"] button,
 [data-testid="stSidebar"] select,
-[data-testid="stSidebar"] span:not([class*="stIcon"]) {
+[data-testid="stSidebar"] span:not([class*="stIcon"]):not([data-testid="stIconMaterial"]) {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    color: #202124 !important;
+}
+
+[data-testid="stSidebar"] button:not([data-testid="stSidebarCollapseButton"] button) {
     font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
     color: #202124 !important;
 }
 
 /* Restore native fonts for Streamlit collapse button and material symbols */
 [data-testid="stSidebarCollapseButton"] button,
+[data-testid="stSidebarCollapseButton"] *,
 span[class*="stIcon"],
+[data-testid="stIconMaterial"],
 span[data-testid="stIconMaterial"] {
-    font-family: inherit !important;
+    font-family: "Material Symbols Rounded", "Material Symbols Outlined", inherit !important;
 }
 
 /* Tab text styling */
@@ -145,59 +150,54 @@ div[data-testid="stSlider"] {
     margin-bottom: 12px !important;
 }
 
-/* Premium Search Bar Panel */
-.search-bar-container {
-    background: #ffffff !important;
+/* Clean styling via marker classes */
+div:has(> div > [class^="marker-"]) {
+    display: none !important;
+}
+
+/* Premium Search Input Styling */
+div:has(> div > .marker-search-input) + div div[data-testid="stTextInput"] input {
+    border-radius: 28px !important;
     border: 1px solid #dadce0 !important;
-    border-radius: 36px !important;
-    padding: 8px 16px 8px 24px !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
-    margin-bottom: 20px !important;
+    padding: 14px 24px !important;
+    height: 52px !important;
+    font-size: 16px !important;
+    color: #202124 !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
-.search-bar-container:hover {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+div:has(> div > .marker-search-input) + div div[data-testid="stTextInput"] input:hover {
     border-color: #c0c0c0 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
 }
-.search-bar-container:focus-within {
+div:has(> div > .marker-search-input) + div div[data-testid="stTextInput"] input:focus {
     border-color: #4285F4 !important;
-    box-shadow: 0 4px 20px rgba(66, 133, 244, 0.15) !important;
-}
-
-/* Make text input inside container borderless and transparent */
-.search-bar-container div[data-testid="stTextInput"] input {
-    border: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-    padding: 8px 0 !important;
-    font-size: 16px !important;
-}
-.search-bar-container div[data-testid="stTextInput"] input:focus {
+    box-shadow: 0 4px 12px rgba(66,133,244,0.15) !important;
     outline: none !important;
-    border: none !important;
-    box-shadow: none !important;
 }
 
-/* Styled primary search button inside the search bar */
-.search-bar-container button[kind="primary"] {
-    border-radius: 24px !important;
-    padding: 10px 28px !important;
-    height: 46px !important;
+/* Premium Search Button Styling */
+div:has(> div > .marker-search-btn) + div button {
+    border-radius: 28px !important;
+    height: 52px !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
     background-color: #4285F4 !important;
+    color: #ffffff !important;
+    border: none !important;
     box-shadow: 0 2px 6px rgba(66, 133, 244, 0.3) !important;
-    margin-top: 2px !important;
+    transition: all 0.2s !important;
+    width: 100% !important;
 }
-.search-bar-container button[kind="primary"]:hover {
+div:has(> div > .marker-search-btn) + div button:hover {
     background-color: #357ae8 !important;
     box-shadow: 0 4px 12px rgba(66, 133, 244, 0.4) !important;
+    transform: translateY(-1px) !important;
 }
 
-/* Google Rainbow Suggestion Chips */
-.rec-chips-container {
-    margin-top: 12px !important;
-    margin-bottom: 24px !important;
-}
-.rec-chips-container button {
+/* Suggestion Chips styling */
+div:has(> div > [class^="marker-chip-"]) + div button {
     border-radius: 20px !important;
     background-color: #ffffff !important;
     color: #3c4043 !important;
@@ -207,13 +207,13 @@ div[data-testid="stSlider"] {
     padding: 10px 18px !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    width: 100% !important;
 }
 
-/* Mansion Mewah Jakarta (Blue Chip) */
-.rec-chips-container div[data-testid="column"]:nth-of-type(1) button {
+div:has(> div > .marker-chip-blue) + div button {
     border-left: 4px solid #4285F4 !important;
 }
-.rec-chips-container div[data-testid="column"]:nth-of-type(1) button:hover {
+div:has(> div > .marker-chip-blue) + div button:hover {
     border-color: #4285F4 !important;
     background-color: rgba(66, 133, 244, 0.04) !important;
     color: #4285F4 !important;
@@ -221,11 +221,10 @@ div[data-testid="stSlider"] {
     box-shadow: 0 4px 8px rgba(66, 133, 244, 0.1) !important;
 }
 
-/* Townhouse Dekat MRT (Red Chip) */
-.rec-chips-container div[data-testid="column"]:nth-of-type(2) button {
+div:has(> div > .marker-chip-red) + div button {
     border-left: 4px solid #EA4335 !important;
 }
-.rec-chips-container div[data-testid="column"]:nth-of-type(2) button:hover {
+div:has(> div > .marker-chip-red) + div button:hover {
     border-color: #EA4335 !important;
     background-color: rgba(234, 67, 53, 0.04) !important;
     color: #EA4335 !important;
@@ -233,16 +232,53 @@ div[data-testid="stSlider"] {
     box-shadow: 0 4px 8px rgba(234, 67, 53, 0.1) !important;
 }
 
-/* Rumah Murah Bekasi KPR (Green Chip) */
-.rec-chips-container div[data-testid="column"]:nth-of-type(3) button {
+div:has(> div > .marker-chip-green) + div button {
     border-left: 4px solid #34A853 !important;
 }
-.rec-chips-container div[data-testid="column"]:nth-of-type(3) button:hover {
+div:has(> div > .marker-chip-green) + div button:hover {
     border-color: #34A853 !important;
     background-color: rgba(52, 168, 83, 0.04) !important;
     color: #34A853 !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 8px rgba(52, 168, 83, 0.1) !important;
+}
+
+/* Comparison Trigger Bar styling */
+div:has(> div > .marker-compare-bar) + div {
+    background: #ffffff !important;
+    border: 1px solid #dadce0 !important;
+    border-radius: 16px !important;
+    padding: 16px 24px !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06) !important;
+    margin-bottom: 28px !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+div:has(> div > .marker-compare-bar) + div::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853);
+}
+
+div:has(> div > .marker-compare-btn) + div button {
+    border-radius: 24px !important;
+    height: 44px !important;
+    font-weight: 600 !important;
+    background-color: #4285F4 !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 2px 6px rgba(66, 133, 244, 0.2) !important;
+    transition: all 0.2s !important;
+    width: 100% !important;
+}
+div:has(> div > .marker-compare-btn) + div button:hover {
+    background-color: #357ae8 !important;
+    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.35) !important;
+    transform: translateY(-1px) !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -463,6 +499,51 @@ def show_property_modal(row):
     if url and url.strip().lower() not in ["nan", "not_found", ""]:
         st.markdown(f'<a href="{url}" target="_blank" style="text-align:center; display:block; background:#4285F4; color:#ffffff; padding:12px 24px; border-radius:8px; font-weight:bold; text-decoration:none; box-shadow:0 2px 6px rgba(66,133,244,0.25); transition:all 0.3s; font-family:\"Outfit\",sans-serif;">Buka Halaman Sumber Properti</a>', unsafe_allow_html=True)
 
+# Modern modal dialog for property comparison
+@st.dialog("Perbandingan Properti", width="large")
+def show_comparison_dialog(df):
+    if "compare_list" not in st.session_state or not st.session_state.compare_list:
+        st.write("Tidak ada properti yang dipilih untuk perbandingan.")
+        return
+        
+    compare_df = df.loc[st.session_state.compare_list]
+    
+    # Render table columns side-by-side
+    cols_comp = st.columns(len(compare_df) + 1)
+    
+    with cols_comp[0]:
+        st.markdown("<p style='font-weight:800; color:#4285F4; font-size:14px; margin-bottom:12px; font-family:\"Outfit\",sans-serif;'>Spesifikasi</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:12px;'>Harga</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:12px;'>Luas Tanah</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:12px;'>Luas Bangunan</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:12px;'>Bebas Banjir</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:12px;'>Bisa KPR</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:12px;'>Surat SHM</p>", unsafe_allow_html=True)
+        
+    for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
+        with cols_comp[i]:
+            title_short = str(row.get("title", "Properti"))
+            if len(title_short) > 28:
+                title_short = title_short[:25] + "..."
+            st.markdown(f"<p style='font-weight:700; color:#202124; font-size:14px; margin-bottom:12px; font-family:\"Outfit\",sans-serif; min-height:40px; line-height:1.3;'>{title_short}</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='font-size:14px; color:#202124; font-weight:700; margin-bottom:12px;'>{format_harga(row.get('harga_rp', 0))}</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='font-size:14px; color:#202124; margin-bottom:12px;'>{row.get('luas_tanah_m2', '-')} m&sup2;</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='font-size:14px; color:#202124; margin-bottom:12px;'>{row.get('luas_bangunan_m2', '-')} m&sup2;</p>", unsafe_allow_html=True)
+            
+            def render_check_badge(val):
+                if val == 1:
+                    return '<span style="color:#137333; font-weight:600; background:rgba(52,168,83,0.1); padding:2px 8px; border-radius:12px; font-size:12px;">Ya</span>'
+                else:
+                    return '<span style="color:#c5221f; font-weight:600; background:rgba(234,67,53,0.1); padding:2px 8px; border-radius:12px; font-size:12px;">Tidak</span>'
+                
+            st.markdown(f"<p style='margin-bottom:12px;'>{render_check_badge(row.get('Hybrid_Bebas_Banjir', 0))}</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='margin-bottom:12px;'>{render_check_badge(row.get('AI_Bisa_KPR', 0))}</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='margin-bottom:18px;'>{render_check_badge(row.get('AI_Legalitas_SHM', 0))}</p>", unsafe_allow_html=True)
+            
+            if st.button("Hapus", key=f"btn_remove_dialog_{orig_idx}", type="secondary", use_container_width=True):
+                st.session_state.compare_list.remove(orig_idx)
+                st.rerun()
+
 # Render property card
 def render_card(item, rank):
     row   = item["row"]
@@ -572,12 +653,13 @@ def render_card(item, rank):
         if st.button(btn_label, key=f"btn_comp_{item['idx']}", type="primary" if is_compared else "secondary", use_container_width=True):
             if is_compared:
                 st.session_state.compare_list.remove(item["idx"])
+                st.rerun()
             else:
                 if len(st.session_state.compare_list) >= 4:
-                    st.warning("Maksimal perbandingan adalah 4 properti!")
+                    st.toast("Maksimal perbandingan adalah 4 properti!")
                 else:
                     st.session_state.compare_list.append(item["idx"])
-            st.rerun()
+                    st.rerun()
             
     # Spacer
     st.markdown("<div style='margin-bottom: 28px;'></div>", unsafe_allow_html=True)
@@ -719,9 +801,9 @@ with st.sidebar:
 if "query_val" not in st.session_state:
     st.session_state.query_val = ""
 
-st.markdown('<div class="search-bar-container">', unsafe_allow_html=True)
 col_input, col_btn = st.columns([5, 1])
 with col_input:
+    st.markdown('<div class="marker-search-input"></div>', unsafe_allow_html=True)
     query = st.text_input(
         "Ketik pencarian...",
         value=st.session_state.query_val,
@@ -731,26 +813,49 @@ with col_input:
     # Update session state query value when user writes
     st.session_state.query_val = query
 with col_btn:
+    st.markdown('<div class="marker-search-btn"></div>', unsafe_allow_html=True)
     cari = st.button("Cari Properti", use_container_width=True, type="primary")
-st.markdown('</div>', unsafe_allow_html=True)
 
 # Search recommendations
-st.markdown("<div style='margin-top: 12px; margin-bottom: 4px; font-weight:600; color:#5f6368;'>Pencarian Populer:</div>", unsafe_allow_html=True)
-st.markdown('<div class="rec-chips-container">', unsafe_allow_html=True)
+st.markdown("<div style='margin-top: 12px; margin-bottom: 8px; font-weight:600; color:#5f6368;'>Pencarian Populer:</div>", unsafe_allow_html=True)
 rec_cols = st.columns([1, 1, 1])
 with rec_cols[0]:
+    st.markdown('<div class="marker-chip-blue"></div>', unsafe_allow_html=True)
     if st.button("Mansion Mewah Jakarta", use_container_width=True, key="rec1"):
         st.session_state.query_val = "Mansion Mewah Jakarta"
         st.rerun()
 with rec_cols[1]:
+    st.markdown('<div class="marker-chip-red"></div>', unsafe_allow_html=True)
     if st.button("Townhouse Dekat MRT", use_container_width=True, key="rec2"):
         st.session_state.query_val = "Townhouse Dekat MRT"
         st.rerun()
 with rec_cols[2]:
+    st.markdown('<div class="marker-chip-green"></div>', unsafe_allow_html=True)
     if st.button("Rumah Murah Bekasi KPR", use_container_width=True, key="rec3"):
         st.session_state.query_val = "Rumah Murah Bekasi KPR"
         st.rerun()
-st.markdown('</div>', unsafe_allow_html=True)
+
+# Comparison trigger bar
+if "compare_list" in st.session_state and st.session_state.compare_list:
+    count = len(st.session_state.compare_list)
+    st.markdown('<div class="marker-compare-bar"></div>', unsafe_allow_html=True)
+    col_desc, col_trigger = st.columns([4, 1])
+    with col_desc:
+        st.markdown(f"""
+        <div style="display:flex; align-items:center; gap:12px; height:100%; padding-top:8px;">
+            <span style="font-family:'Outfit',sans-serif; font-size:16px; font-weight:700; color:#202124;">
+                Bandingkan Properti ({count} / 4 Terpilih)
+            </span>
+            <span style="height:20px; width:1px; background:#dadce0;"></span>
+            <span style="font-family:'Outfit',sans-serif; font-size:13.5px; color:#5f6368;">
+                Bandingkan detail spesifikasi fisik, harga, legalitas, dan status banjir.
+            </span>
+        </div>
+        """, unsafe_allow_html=True)
+    with col_trigger:
+        st.markdown('<div class="marker-compare-btn"></div>', unsafe_allow_html=True)
+        if st.button("Buka Perbandingan", key="btn_open_compare", type="primary", use_container_width=True):
+            show_comparison_dialog(df)
 
 st.divider()
 
@@ -800,54 +905,4 @@ elif data_ok:
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------
-# FLOATING PROPERTY COMPARISON PANEL
-# ---------------------------------------------
-if "compare_list" in st.session_state and st.session_state.compare_list:
-    st.markdown("<div style='margin-top: 48px;'></div>", unsafe_allow_html=True)
-    st.markdown(f"""
-    <div style='background: #f8f9fa; padding: 20px; border-radius: 12px; border: 1px solid #dadce0; border-top: 4px solid #4285F4; margin-bottom: 24px;'>
-        <h3 style='margin:0; color:#202124; font-family:"Outfit", sans-serif; font-size:20px; font-weight:700; display:flex; align-items:center; gap:12px;'>
-            Perbandingan Properti
-            <span style='font-size:12px; color:#ffffff; background:#4285F4; padding:3px 10px; border-radius:12px; font-weight:600;'>{len(st.session_state.compare_list)} Terpilih</span>
-        </h3>
-    </div>
-    """, unsafe_allow_html=True)
-
-    compare_df = df.loc[st.session_state.compare_list]
-    
-    # Render table
-    cols_comp = st.columns(len(compare_df) + 1)
-    
-    with cols_comp[0]:
-        st.markdown("<p style='font-weight:800; color:#4285F4; font-size:14px; margin-bottom:12px; font-family:\"Outfit\",sans-serif;'>Spesifikasi</p>", unsafe_allow_html=True)
-        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:10px;'>Harga</p>", unsafe_allow_html=True)
-        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:10px;'>Luas Tanah</p>", unsafe_allow_html=True)
-        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:10px;'>Luas Bangunan</p>", unsafe_allow_html=True)
-        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:10px;'>Bebas Banjir</p>", unsafe_allow_html=True)
-        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:10px;'>Bisa KPR</p>", unsafe_allow_html=True)
-        st.markdown("<p style='font-weight:600; color:#5f6368; font-size:14px; margin-bottom:10px;'>Surat SHM</p>", unsafe_allow_html=True)
-        
-    for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
-        with cols_comp[i]:
-            title_short = str(row.get("title", "Properti"))
-            if len(title_short) > 28:
-                title_short = title_short[:25] + "..."
-            st.markdown(f"<p style='font-weight:700; color:#202124; font-size:14px; margin-bottom:12px; font-family:\"Outfit\",sans-serif; min-height:40px; line-height:1.3;'>{title_short}</p>", unsafe_allow_html=True)
-            st.markdown(f"<p style='font-size:14px; color:#202124; font-weight:700; margin-bottom:10px;'>{format_harga(row.get('harga_rp', 0))}</p>", unsafe_allow_html=True)
-            st.markdown(f"<p style='font-size:14px; color:#202124; margin-bottom:10px;'>{row.get('luas_tanah_m2', '-')} m&sup2;</p>", unsafe_allow_html=True)
-            st.markdown(f"<p style='font-size:14px; color:#202124; margin-bottom:10px;'>{row.get('luas_bangunan_m2', '-')} m&sup2;</p>", unsafe_allow_html=True)
-            
-            def render_check_badge(val):
-                if val == 1:
-                    return '<span style="color:#137333; font-weight:600; background:rgba(52,168,83,0.1); padding:2px 8px; border-radius:12px; font-size:12px;">Ya</span>'
-                else:
-                    return '<span style="color:#c5221f; font-weight:600; background:rgba(234,67,53,0.1); padding:2px 8px; border-radius:12px; font-size:12px;">Tidak</span>'
-                
-            st.markdown(f"<p style='margin-bottom:10px;'>{render_check_badge(row.get('Hybrid_Bebas_Banjir', 0))}</p>", unsafe_allow_html=True)
-            st.markdown(f"<p style='margin-bottom:10px;'>{render_check_badge(row.get('AI_Bisa_KPR', 0))}</p>", unsafe_allow_html=True)
-            st.markdown(f"<p style='margin-bottom:18px;'>{render_check_badge(row.get('AI_Legalitas_SHM', 0))}</p>", unsafe_allow_html=True)
-            
-            if st.button("Hapus", key=f"btn_remove_comp_{orig_idx}", type="secondary", use_container_width=True):
-                st.session_state.compare_list.remove(orig_idx)
-                st.rerun()
+# (Comparison features are now handled via trigger banner and modal dialog)
