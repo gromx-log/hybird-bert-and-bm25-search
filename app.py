@@ -574,77 +574,128 @@ def show_comparison_dialog(df):
         
     compare_df = df.loc[st.session_state.compare_list]
     
-    # 1. Build the HTML Table dynamically
-    html = '<div class="comparison-table-wrapper"><table class="comparison-table">'
+    # Proportional column ratio for perfect grid alignment
+    col_ratio = [1.2] + [2.0] * len(compare_df)
     
-    # Header row
-    html += '<thead><tr><th>Spesifikasi</th>'
-    for orig_idx, row in compare_df.iterrows():
-        title_short = str(row.get("title", "Properti"))
-        if len(title_short) > 28:
-            title_short = title_short[:25] + "..."
-        html += f'<th>{title_short}</th>'
-    html += '</tr></thead><tbody>'
-    
-    # Row: Harga
-    html += '<tr><td>Harga</td>'
-    for orig_idx, row in compare_df.iterrows():
-        html += f'<td><strong style="color: #4285F4; font-size: 15px;">{format_harga(row.get("harga_rp", 0))}</strong></td>'
-    html += '</tr>'
-    
-    # Row: Luas Tanah
-    html += '<tr><td>Luas Tanah</td>'
-    for orig_idx, row in compare_df.iterrows():
-        html += f'<td>{row.get("luas_tanah_m2", "-")} m&sup2;</td>'
-    html += '</tr>'
-    
-    # Row: Luas Bangunan
-    html += '<tr><td>Luas Bangunan</td>'
-    for orig_idx, row in compare_df.iterrows():
-        html += f'<td>{row.get("luas_bangunan_m2", "-")} m&sup2;</td>'
-    html += '</tr>'
-    
-    def get_badge_html(val):
-        if val == 1:
-            return '<span style="color:#137333; font-weight:600; background:rgba(52,168,83,0.1); padding:4px 10px; border-radius:12px; font-size:12px;">Ya</span>'
-        else:
-            return '<span style="color:#c5221f; font-weight:600; background:rgba(234,67,53,0.1); padding:4px 10px; border-radius:12px; font-size:12px;">Tidak</span>'
+    # 1. Header Row
+    row_header = st.columns(col_ratio)
+    with row_header[0]:
+        st.markdown("**Spesifikasi**")
+    for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
+        with row_header[i]:
+            title_short = str(row.get("title", "Properti"))
+            if len(title_short) > 28:
+                title_short = title_short[:25] + "..."
+            st.markdown(f"**{title_short}**")
+    st.divider()
             
-    # Row: Bebas Banjir
-    html += '<tr><td>Bebas Banjir</td>'
-    for orig_idx, row in compare_df.iterrows():
-        html += f'<td>{get_badge_html(row.get("Hybrid_Bebas_Banjir", 0))}</td>'
-    html += '</tr>'
-    
-    # Row: Bisa KPR
-    html += '<tr><td>Bisa KPR</td>'
-    for orig_idx, row in compare_df.iterrows():
-        html += f'<td>{get_badge_html(row.get("AI_Bisa_KPR", 0))}</td>'
-    html += '</tr>'
-    
-    # Row: Surat SHM
-    html += '<tr><td>Surat SHM</td>'
-    for orig_idx, row in compare_df.iterrows():
-        html += f'<td>{get_badge_html(row.get("AI_Legalitas_SHM", 0))}</td>'
-    html += '</tr>'
-    
-    html += '</tbody></table></div>'
-    
-    st.markdown(html, unsafe_allow_html=True)
-    
-    # 2. Render Aligned Control Buttons below the table
-    cols_btn = st.columns([1.2] + [2.0] * len(compare_df))
-    with cols_btn[0]:
+    # 2. Harga Row
+    row_harga = st.columns(col_ratio)
+    with row_harga[0]:
+        st.write("Harga")
+    for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
+        with row_harga[i]:
+            st.markdown(f"**{format_harga(row.get('harga_rp', 0))}**")
+    st.divider()
+            
+    # 3. Luas Tanah Row
+    row_lt = st.columns(col_ratio)
+    with row_lt[0]:
+        st.write("Luas Tanah")
+    for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
+        with row_lt[i]:
+            st.write(f"{row.get('luas_tanah_m2', '-')} m²")
+    st.divider()
+            
+    # 4. Luas Bangunan Row
+    row_lb = st.columns(col_ratio)
+    with row_lb[0]:
+        st.write("Luas Bangunan")
+    for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
+        with row_lb[i]:
+            st.write(f"{row.get('luas_bangunan_m2', '-')} m²")
+    st.divider()
+            
+    # Helper to style Ya/Tidak text natively
+    def get_badge_markdown(val):
+        return ":green[Ya]" if val == 1 else ":red[Tidak]"
+            
+    # 5. Bebas Banjir Row
+    row_banjir = st.columns(col_ratio)
+    with row_banjir[0]:
+        st.write("Bebas Banjir")
+    for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
+        with row_banjir[i]:
+            st.markdown(get_badge_markdown(row.get("Hybrid_Bebas_Banjir", 0)))
+    st.divider()
+            
+    # 6. Bisa KPR Row
+    row_kpr = st.columns(col_ratio)
+    with row_kpr[0]:
+        st.write("Bisa KPR")
+    for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
+        with row_kpr[i]:
+            st.markdown(get_badge_markdown(row.get("AI_Bisa_KPR", 0)))
+    st.divider()
+            
+    # 7. Surat SHM Row
+    row_shm = st.columns(col_ratio)
+    with row_shm[0]:
+        st.write("Surat SHM")
+    for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
+        with row_shm[i]:
+            st.markdown(get_badge_markdown(row.get("AI_Legalitas_SHM", 0)))
+    st.divider()
+            
+    # 8. Stacked Action Buttons Row (Lihat Detail & Hapus)
+    row_actions1 = st.columns(col_ratio)
+    with row_actions1[0]:
         st.write("") # Spacer
     for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
-        with cols_btn[i]:
-            # Stacked action buttons
+        with row_actions1[i]:
             if st.button("Lihat Detail", key=f"btn_det_comp_{orig_idx}", type="secondary", use_container_width=True):
-                show_property_modal(row)
-            st.markdown("<div style='margin-top:4px;'></div>", unsafe_allow_html=True)
+                st.session_state.detailed_compare_property = orig_idx
+                st.rerun()
+                
+    st.markdown("<div style='margin-top:6px;'></div>", unsafe_allow_html=True)
+                
+    row_actions2 = st.columns(col_ratio)
+    with row_actions2[0]:
+        st.write("") # Spacer
+    for i, (orig_idx, row) in enumerate(compare_df.iterrows(), 1):
+        with row_actions2[i]:
             if st.button("Hapus", key=f"btn_rem_comp_{orig_idx}", type="primary", use_container_width=True):
                 st.session_state.compare_list.remove(orig_idx)
+                if st.session_state.get("detailed_compare_property") == orig_idx:
+                    st.session_state.detailed_compare_property = None
                 st.rerun()
+                
+    # 9. Property detail view container (prevents nested dialog exceptions)
+    if "detailed_compare_property" in st.session_state and st.session_state.detailed_compare_property:
+        selected_idx = st.session_state.detailed_compare_property
+        if selected_idx in compare_df.index:
+            detail_row = compare_df.loc[selected_idx]
+            st.markdown("<div style='margin-top: 24px;'></div>", unsafe_allow_html=True)
+            st.markdown(f"""
+<div style='background:#f8f9fa; border-radius:12px; padding:20px; border:1px solid #dadce0; border-top: 4px solid #4285F4; margin-bottom:15px;'>
+<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;'>
+<h4 style='margin:0; font-family:"Outfit",sans-serif; font-weight:700;'>Detail Properti: {detail_row.get("title", "Properti")}</h4>
+<strong style='color:#4285F4; font-size:18px;'>{format_harga(detail_row.get("harga_rp", 0))}</strong>
+</div>
+</div>
+""", unsafe_allow_html=True)
+            
+            desc = str(detail_row.get("full_description", ""))
+            if desc.strip().upper() in ["NOT_FOUND", "NAN", ""]:
+                desc = str(detail_row.get("teks_gabungan", ""))
+            if desc:
+                st.markdown(f"<div style='color:#202124; font-family:\"Outfit\",sans-serif; font-size:14.5px; line-height:1.6; white-space:pre-wrap; background:#ffffff; padding:16px; border-radius:8px; border:1px solid #dadce0; margin-bottom:15px;'>{desc}</div>", unsafe_allow_html=True)
+            else:
+                st.info("Tidak ada deskripsi detail tambahan.")
+                
+            url = str(detail_row.get("url", ""))
+            if url and url.strip().lower() not in ["nan", "not_found", ""]:
+                st.markdown(f'<a href="{url}" target="_blank" style="text-align:center; display:block; background:#4285F4; color:#ffffff; padding:10px 20px; border-radius:8px; font-weight:bold; text-decoration:none; font-family:\'Outfit\',sans-serif; font-size:14px; box-shadow: 0 2px 6px rgba(66,133,244,0.25);">Buka Halaman Sumber Properti</a>', unsafe_allow_html=True)
 
 # Render property card
 def render_card(item, rank):
@@ -819,48 +870,37 @@ with st.sidebar:
             st.markdown("<h4 style='margin-bottom:10px; color:#202124; font-family:\"Outfit\",sans-serif;'>Spesifikasi Fisik</h4>", unsafe_allow_html=True)
             
             # Harga slider (Scaled to Billions for clean display)
-            st.markdown("<p style='font-weight:600; margin-bottom: 2px; color:#202124;'>Range Harga (Miliar Rp)</p>", unsafe_allow_html=True)
             min_p_b = float(min_p) / 1_000_000_000
             max_p_b = float(max_p) / 1_000_000_000
             p_range_b = st.slider(
-                "Pilih Range Harga",
+                "Range Harga (Miliar Rp)",
                 min_value=min_p_b,
                 max_value=max_p_b,
                 value=(min_p_b, max_p_b),
                 step=0.05,
-                label_visibility="collapsed",
                 key="slider_price"
             )
             p_range = (p_range_b[0] * 1_000_000_000, p_range_b[1] * 1_000_000_000)
-            st.caption(f"Terpilih: **{format_harga(p_range[0])}** - **{format_harga(p_range[1])}**")
-            st.markdown("<div style='margin-bottom:15px;'></div>", unsafe_allow_html=True)
 
             # LT slider
-            st.markdown("<p style='font-weight:600; margin-bottom: 2px; color:#202124;'>Luas Tanah (LT)</p>", unsafe_allow_html=True)
             lt_range = st.slider(
-                "Pilih Luas Tanah",
+                "Luas Tanah (LT) m²",
                 min_value=int(min_lt_val),
                 max_value=int(max_lt_val),
                 value=(int(min_lt_val), int(max_lt_val)),
                 step=10,
-                label_visibility="collapsed",
                 key="slider_lt"
             )
-            st.caption(f"Terpilih: **{lt_range[0]} m2** - **{lt_range[1]} m2**")
-            st.markdown("<div style='margin-bottom:15px;'></div>", unsafe_allow_html=True)
 
             # LB slider
-            st.markdown("<p style='font-weight:600; margin-bottom: 2px; color:#202124;'>Luas Bangunan (LB)</p>", unsafe_allow_html=True)
             lb_range = st.slider(
-                "Pilih Luas Bangunan",
+                "Luas Bangunan (LB) m²",
                 min_value=int(min_lb_val),
                 max_value=int(max_lb_val),
                 value=(int(min_lb_val), int(max_lb_val)),
                 step=10,
-                label_visibility="collapsed",
                 key="slider_lb"
             )
-            st.caption(f"Terpilih: **{lb_range[0]} m2** - **{lb_range[1]} m2**")
             st.divider()
             
             # Sorting
@@ -908,6 +948,17 @@ with st.sidebar:
 # ---------------------------------------------
 # SEARCH BAR & QUERY CONTROLLER
 # ---------------------------------------------
+st.markdown("""
+<div style='text-align: center; margin-top: 15px; margin-bottom: 35px;'>
+    <h1 style='font-family: "Outfit", sans-serif; font-weight: 800; font-size: 38px; color: #202124; margin: 0; background: linear-gradient(90deg, #4285F4 0%, #EA4335 30%, #FBBC05 60%, #34A853 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+        Pencarian Properti Cerdas
+    </h1>
+    <p style='font-family: "Outfit", sans-serif; font-size: 15px; color: #5f6368; margin-top: 8px; margin-bottom: 0; font-weight: 500;'>
+        Temukan hunian impian Anda menggunakan bahasa natural, ditenagai oleh kombinasi IndoBERT & BM25 secara real-time.
+    </p>
+</div>
+""", unsafe_allow_html=True)
+
 if "query_val" not in st.session_state:
     st.session_state.query_val = ""
 
@@ -950,6 +1001,7 @@ if "compare_list" in st.session_state and st.session_state.compare_list:
     count = len(st.session_state.compare_list)
     st.markdown('<div class="marker-compare-float-btn"></div>', unsafe_allow_html=True)
     if st.button(f"Buka Perbandingan ({count}/4)", key="btn_float_compare", type="primary"):
+        st.session_state.detailed_compare_property = None
         show_comparison_dialog(df)
 
 st.divider()
