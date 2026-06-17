@@ -5,19 +5,11 @@ import pickle
 import re
 import torch
 from sentence_transformers import SentenceTransformer, util
-
-# ---------------------------------------------
-# PAGE CONFIG
-# ---------------------------------------------
 st.set_page_config(
     page_title="Pencarian Properti Cerdas",
     page_icon=None,
     layout="wide",
 )
-
-# ---------------------------------------------
-# CUSTOM CSS FOR GOOGLE ANTIGRAVITY LIGHT & RAINBOW THEME
-# ---------------------------------------------
 st.markdown(r"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
@@ -344,16 +336,12 @@ div[data-testid="stDialog"] hr {
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------
 # PATHS
-# ---------------------------------------------
 PATH_DATA       = "data/properties_enriched.csv"
 PATH_BM25       = "data/bm25_index.pkl"
 PATH_EMBEDDINGS = "data/sbert_embeddings.npy"
 
-# ---------------------------------------------
-# REGEX POLA BEBAS BANJIR
-# ---------------------------------------------
+# REGEX
 POLA_BEBAS_BANJIR = [
     r'\bbebas\s*banjir\b', r'\banti[\s\-]?banjir\b',
     r'\btidak\s*(pernah\s*)?(kena|terkena|tergenang|kebanjiran|banjir)\b',
@@ -388,9 +376,7 @@ def min_max_normalize(scores):
         return [0.5] * len(scores)
     return [(s - mn) / (mx - mn) for s in scores]
 
-# ---------------------------------------------
 # LOAD RESOURCES
-# ---------------------------------------------
 @st.cache_resource(show_spinner="Memuat model dan data, harap tunggu...")
 def load_resources():
     df = pd.read_csv(PATH_DATA)
@@ -410,9 +396,7 @@ def load_resources():
 
     return df, bm25, model_sbert, doc_tensor
 
-# ---------------------------------------------
 # SEARCH FUNCTION
-# ---------------------------------------------
 def hybrid_search(query, df, bm25, model_sbert, doc_tensor,
                   top_k=10, bm25_w=0.7, sbert_w=0.3,
                   filter_banjir=False, filter_kpr=False, filter_shm=False,
@@ -492,9 +476,7 @@ def hybrid_search(query, df, bm25, model_sbert, doc_tensor,
 
     return all_results[:top_k], len(valid_indices)
 
-# ---------------------------------------------
 # HELPERS
-# ---------------------------------------------
 def format_harga(val):
     try:
         v = float(val)
@@ -544,7 +526,6 @@ def show_property_modal(row):
 <h3 style='color:#202124; font-family:"Outfit",sans-serif; font-size:22px; font-weight:700; margin-bottom:16px;'>{title}</h3>
 """, unsafe_allow_html=True)
     
-    # Priority detail from dataframe column
     full_desc = str(row.get("full_description", ""))
     if full_desc.strip().upper() in ["NOT_FOUND", "NAN", ""]:
         full_desc = str(row.get("teks_gabungan", ""))
@@ -556,11 +537,9 @@ def show_property_modal(row):
     else:
         st.info("Tidak ada deskripsi detail tambahan.")
 
-    # Display Link if present
     if url and url.strip().lower() not in ["nan", "not_found", ""]:
         st.markdown(f"Cek Sekarang: [{url}]({url})")
 
-# Modern modal dialog for property comparison
 @st.dialog("Perbandingan Properti", width="large")
 def show_comparison_dialog(df):
     if "compare_list" not in st.session_state or not st.session_state.compare_list:
@@ -568,13 +547,10 @@ def show_comparison_dialog(df):
         return
         
     compare_df = df.loc[st.session_state.compare_list]
-    
-    # Calculate perfect percentages for table and action buttons alignment
     total_weight = 1.2 + 2.0 * len(compare_df)
     first_col_pct = (1.2 / total_weight) * 100
     other_col_pct = (2.0 / total_weight) * 100
     
-    # 1. Header HTML Row
     html_header = f'<th style="width: {first_col_pct}%;">Spesifikasi</th>'
     for orig_idx, row in compare_df.iterrows():
         title_short = str(row.get("title", "Properti"))
@@ -582,47 +558,39 @@ def show_comparison_dialog(df):
             title_short = title_short[:25] + "..."
         html_header += f'<th style="width: {other_col_pct}%;">{title_short}</th>'
         
-    # 2. Harga HTML Row
     html_price = '<tr><td>Harga</td>'
     for orig_idx, row in compare_df.iterrows():
         html_price += f'<td style="color: #4285F4; font-weight: 700;">{format_harga(row.get("harga_rp", 0))}</td>'
     html_price += '</tr>'
     
-    # 3. Luas Tanah HTML Row
     html_lt = '<tr><td>Luas Tanah</td>'
     for orig_idx, row in compare_df.iterrows():
         html_lt += f'<td>{row.get("luas_tanah_m2", "-")} m²</td>'
     html_lt += '</tr>'
     
-    # 4. Luas Bangunan HTML Row
     html_lb = '<tr><td>Luas Bangunan</td>'
     for orig_idx, row in compare_df.iterrows():
         html_lb += f'<td>{row.get("luas_bangunan_m2", "-")} m²</td>'
     html_lb += '</tr>'
     
-    # Helper for Yes/No styled HTML
     def get_badge_html(val):
         return '<span style="color: #137333; font-weight: 600;">Ya</span>' if val == 1 else '<span style="color: #c5221f; font-weight: 600;">Tidak</span>'
         
-    # 5. Bebas Banjir HTML Row
     html_banjir = '<tr><td>Bebas Banjir</td>'
     for orig_idx, row in compare_df.iterrows():
         html_banjir += f'<td>{get_badge_html(row.get("Hybrid_Bebas_Banjir", 0))}</td>'
     html_banjir += '</tr>'
     
-    # 6. Bisa KPR HTML Row
     html_kpr = '<tr><td>Bisa KPR</td>'
     for orig_idx, row in compare_df.iterrows():
         html_kpr += f'<td>{get_badge_html(row.get("AI_Bisa_KPR", 0))}</td>'
     html_kpr += '</tr>'
     
-    # 7. Surat SHM HTML Row
     html_shm = '<tr><td>Surat SHM</td>'
     for orig_idx, row in compare_df.iterrows():
         html_shm += f'<td>{get_badge_html(row.get("AI_Legalitas_SHM", 0))}</td>'
     html_shm += '</tr>'
     
-    # Dynamic comparison table render
     table_html = f"""
     <div class="comparison-table-wrapper">
         <table class="comparison-table">
@@ -642,7 +610,7 @@ def show_comparison_dialog(df):
     """
     st.markdown(table_html, unsafe_allow_html=True)
     
-    # 8. Action Buttons Row (Stacked inside each column for perfect alignment below the table)
+    # Action Buttons
     col_ratio = [1.2] + [2.0] * len(compare_df)
     row_actions = st.columns(col_ratio)
     with row_actions[0]:
@@ -659,7 +627,6 @@ def show_comparison_dialog(df):
                 if st.session_state.get("detailed_compare_property") == orig_idx:
                     st.session_state.detailed_compare_property = None
                 
-    # 9. Property detail view container (prevents nested dialog exceptions)
     if "detailed_compare_property" in st.session_state and st.session_state.detailed_compare_property:
         selected_idx = st.session_state.detailed_compare_property
         if selected_idx in compare_df.index:
@@ -686,12 +653,11 @@ def show_comparison_dialog(df):
             if url and url.strip().lower() not in ["nan", "not_found", ""]:
                 st.markdown(f"Cek Sekarang: [{url}]({url})")
 
-# Render property card
+# Render Property Card
 def render_card(item, rank):
     row   = item["row"]
     score = item["score"]
 
-    # Check comparison status
     if "compare_list" not in st.session_state:
         st.session_state.compare_list = []
     is_compared = item["idx"] in st.session_state.compare_list
@@ -711,7 +677,6 @@ def render_card(item, rank):
             
     snippet  = full_desc[:200] + "..." if len(full_desc) > 200 else full_desc
 
-    # Modern badging system (Emoji-free)
     badges = ""
     if row.get("Hybrid_Bebas_Banjir", 0) == 1:
         badges += label_badge("Bebas Banjir", "rgba(52, 168, 83, 0.08)", "#137333", "rgba(52, 168, 83, 0.25)")
@@ -721,8 +686,6 @@ def render_card(item, rank):
         badges += label_badge("Legalitas SHM", "rgba(251, 188, 5, 0.08)", "#b06000", "rgba(251, 188, 5, 0.25)")
 
     score_pct = int(score * 100)
-
-    # Injected CSS for smooth hover expansion over snippet with google rainbow glow
     st.markdown(f"""
 <style>
 .property-card-{rank} {{
@@ -793,7 +756,6 @@ def render_card(item, rank):
         if st.button("Lihat Detail Lengkap", key=f"btn_detail_{item['idx']}", type="secondary", use_container_width=True):
             show_property_modal(row)
     with col_btn_compare:
-        # Comparison logic
         if "compare_list" not in st.session_state:
             st.session_state.compare_list = []
         
@@ -811,12 +773,10 @@ def render_card(item, rank):
                     st.session_state.compare_list.append(item["idx"])
                     st.rerun()
             
-    # Spacer
     st.markdown("<div style='margin-bottom: 28px;'></div>", unsafe_allow_html=True)
 
-# ---------------------------------------------
+
 # LOAD RESOURCES
-# ---------------------------------------------
 try:
     df, bm25_model, sbert_model, doc_tensor = load_resources()
     data_ok = True
@@ -825,7 +785,6 @@ except Exception as e:
     st.info("Pastikan folder `data/` berisi: `properties_enriched.csv`, `bm25_index.pkl`, `sbert_embeddings.npy`")
     data_ok = False
 
-# -- Sidebar tabbed navigation ----------------
 with st.sidebar:
     st.markdown("""
     <div style='text-align: center; padding-bottom: 10px; margin-top: -15px;'>
@@ -836,9 +795,7 @@ with st.sidebar:
     
     st.divider()
 
-    # Reset button
     if st.button("Reset Semua Filter", use_container_width=True):
-        # Explicitly reset all widgets to their defaults
         if data_ok:
             st.session_state["slider_price"] = (float(df["harga_rp"].min()) / 1_000_000_000, float(df["harga_rp"].max()) / 1_000_000_000)
             st.session_state["slider_lt"] = (int(df["luas_tanah_m2"].min()), int(df["luas_tanah_m2"].max()))
@@ -867,8 +824,6 @@ with st.sidebar:
         
         with tab_fisik:
             st.markdown("<h4 style='margin-bottom:10px; color:#202124; font-family:\"Outfit\",sans-serif;'>Spesifikasi Fisik</h4>", unsafe_allow_html=True)
-            
-            # Harga slider (Scaled to Billions for clean display)
             min_p_b = float(min_p) / 1_000_000_000
             max_p_b = float(max_p) / 1_000_000_000
             p_range_b = st.slider(
@@ -944,9 +899,7 @@ with st.sidebar:
     else:
         st.error("Data tidak berhasil dimuat di sidebar.")
 
-# ---------------------------------------------
 # SEARCH BAR & QUERY CONTROLLER
-# ---------------------------------------------
 st.markdown("""
 <div style='text-align: center; margin-top: 15px; margin-bottom: 35px;'>
     <h1 style='font-family: "Outfit", sans-serif; font-weight: 800; font-size: 38px; color: #202124; margin: 0;'>
@@ -970,13 +923,11 @@ with col_input:
         placeholder='cth: "Rumah mewah di Jakarta Selatan bebas banjir bisa KPR"',
         label_visibility="collapsed",
     )
-    # Update session state query value when user writes
     st.session_state.query_val = query
 with col_btn:
     st.markdown('<div class="marker-search-btn"></div>', unsafe_allow_html=True)
     cari = st.button("Cari Properti", use_container_width=True, type="primary")
 
-# Search recommendations
 st.markdown("<div style='margin-top: 12px; margin-bottom: 8px; font-weight:600; color:#5f6368;'>Pencarian Populer:</div>", unsafe_allow_html=True)
 rec_cols = st.columns([1, 1, 1])
 with rec_cols[0]:
@@ -995,7 +946,6 @@ with rec_cols[2]:
         st.session_state.query_val = "Rumah Murah Bekasi KPR"
         st.rerun()
 
-# Floating Comparison Trigger Button
 if "compare_list" in st.session_state and st.session_state.compare_list:
     count = len(st.session_state.compare_list)
     st.markdown('<div class="marker-compare-float-btn"></div>', unsafe_allow_html=True)
@@ -1005,9 +955,7 @@ if "compare_list" in st.session_state and st.session_state.compare_list:
 
 st.divider()
 
-# ---------------------------------------------
 # SEARCH RESULTS RENDERING
-# ---------------------------------------------
 if (cari or query) and data_ok and query.strip():
     with st.spinner("Mencari properti terbaik untuk Anda..."):
         results, total_lolos = hybrid_search(
@@ -1050,5 +998,3 @@ elif data_ok:
     </p>
 </div>
 """, unsafe_allow_html=True)
-
-# (Comparison features are now handled via trigger banner and modal dialog)

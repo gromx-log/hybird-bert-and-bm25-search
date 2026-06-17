@@ -1,9 +1,9 @@
 # Pencarian Properti Cerdas (Real Estate Hybrid Search Engine)
 
-### Link Aplikasi: [Aplikasi Streamlit Live](https://hybrid-bert-and-bm25-search-h6ijqfgxyqjzmwivtceoas.streamlit.app)
-### Panduan Pengguna: [User Guide](https://bit.ly/4az28c5)
-### Google Colab Notebook: [Notebook Colab](https://colab.research.google.com/drive/1Qh6Qfv7v-YkA5iHJvoV-VtQb2cf9Viip?usp=sharing)
-### Paper Akademik: [Paper Riset](https://drive.google.com/open?id=1tCHNLOUjywo34QdIN228qKXJgyQh_4Ci&usp=drive_copy)
+*   [Aplikasi Streamlit Live](https://hybrid-bert-and-bm25-search-h6ijqfgxyqjzmwivtceoas.streamlit.app): Tautan untuk mengakses demo aplikasi web interaktif secara online dan melakukan pencarian properti secara real-time.
+*   [Panduan Pengguna (User Guide)](https://bit.ly/4az28c5): Dokumen manual panduan lengkap langkah demi langkah untuk menggunakan fitur pencarian, filter, dan panel pembanding properti.
+*   [Notebook Google Colab](https://colab.research.google.com/drive/1Qh6Qfv7v-YkA5iHJvoV-VtQb2cf9Viip?usp=sharing): File notebook utama yang berisi alur lengkap data preprocessing, pemrosesan regex, fine-tuning model IndoBERT, pembuatan indeks BM25 dan SBERT, hingga pengujian benchmark evaluasi.
+*   [Paper Riset Akademik](https://drive.google.com/open?id=1tCHNLOUjywo34QdIN228qKXJgyQh_4Ci&usp=drive_copy): Dokumen paper ilmiah untuk menjabarkan landasan teori, metodologi arsitektur hybrid, pengujian, serta analisis pembahasan hasil penelitian.
 
 ---
 
@@ -52,14 +52,21 @@ Mesin pencari ini bekerja dalam dua tahapan utama (Two-Stage Retrieval Pipeline)
 ---
 
 ## Arsitektur Data & Direktori
-Direktori `data/` melayani dua tujuan utama dalam proyek ini:
+Direktori data [[data/](./data/)] melayani dua tujuan utama dalam proyek ini:
 1. Menyediakan berkas backend yang menjalankan aplikasi web Streamlit secara langsung (membaca dataset dan model representasi).
-2. Berperan sebagai sumber daya (downloadable resource) yang dibutuhkan secara lokal untuk menjalankan berkas Jupyter Notebook (`.ipynb`) maupun Google Colab notebook.
+2. Berperan sebagai sumber daya (downloadable resource) yang dapat diunduh secara langsung untuk menjalankan berkas Jupyter Notebook (`.ipynb`) maupun Google Colab notebook di lingkungan lokal atau cloud Anda.
 
-Aplikasi memuat data pra-proses dari direktori `data/` yang harus saling selaras:
-* `data/properties_enriched.csv`: Dataset properti dengan fitur prediksi AI offline.
-* `data/bm25_index.pkl`: Model indeks BM25 terserialisasi.
-* `data/sbert_embeddings.npy`: Array representasi vektor Sentence-BERT.
+Berkas data yang terdapat pada direktori [[data/](./data/)] dibagi menjadi dua kategori utama:
+
+### 1. Data Mentah (Raw Data)
+*   [data/properties_raw.csv](./data/properties_raw.csv): Dataset properti mentah hasil penarikan (*scraping*) langsung dari portal rumah123.com sebelum melalui proses pembersihan.
+*   [data/labeled_training.csv](./data/labeled_training.csv): Dataset berlabel biner hasil anotasi manual untuk keperluan pelatihan (*fine-tuning*) klasifikasi model IndoBERT (berisi target_banjir, target_kpr, target_shm).
+
+### 2. Data Olahan (Processed Data & Models)
+Aplikasi memuat data olahan dan representasi model yang telah saling diselaraskan indeksnya:
+*   [data/properties_enriched.csv](./data/properties_enriched.csv): Dataset properti lengkap yang telah dibersihkan dan diperkaya dengan kolom prediksi AI luring (*offline prediction*) dan ekstraksi regex (misal: harga, luas tanah, luas bangunan, bebas banjir hybrid, KPR, SHM).
+*   [data/bm25_index.pkl](./data/bm25_index.pkl): Berkas serialisasi model indeks BM25 untuk pencarian leksikal instan.
+*   [data/sbert_embeddings.npy](./data/sbert_embeddings.npy): Berkas representasi vektor (embeddings) Sentence-BERT untuk pencarian semantik berkecepatan tinggi.
 
 ---
 
