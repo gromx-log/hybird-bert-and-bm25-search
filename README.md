@@ -3,7 +3,7 @@
 *   [Aplikasi Streamlit Live](https://hybrid-bert-and-bm25-search-h6ijqfgxyqjzmwivtceoas.streamlit.app): Tautan untuk mengakses demo aplikasi web interaktif secara online dan melakukan pencarian properti secara real-time.
 *   [Panduan Pengguna (User Guide)](https://bit.ly/4az28c5): Dokumen manual panduan lengkap langkah demi langkah untuk menggunakan fitur pencarian, filter, dan panel pembanding properti.
 *   [Notebook Google Colab](https://colab.research.google.com/drive/1Qh6Qfv7v-YkA5iHJvoV-VtQb2cf9Viip?usp=sharing): File notebook utama yang berisi alur lengkap data preprocessing, pemrosesan regex, fine-tuning model IndoBERT, pembuatan indeks BM25 dan SBERT, hingga pengujian benchmark evaluasi.
-*   [Paper Riset Akademik](https://drive.google.com/open?id=1tCHNLOUjywo34QdIN228qKXJgyQh_4Ci&usp=drive_copy): Dokumen paper ilmiah untuk menjabarkan landasan teori, metodologi arsitektur hybrid, pengujian, serta analisis pembahasan hasil penelitian.
+*   [Paper Riset Akademik](https://drive.google.com/open?id=1q549XAcBblQzCaSG_0GU-iA6GyP4DcLN&usp=drive_copy): Dokumen paper ilmiah untuk menjabarkan landasan teori, metodologi arsitektur hybrid, pengujian, serta analisis pembahasan hasil penelitian.
 
 ---
 
